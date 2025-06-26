@@ -1,0 +1,4 @@
+[[redirects]]
+  from = "/api/bonkscreener"
+  to = "/.netlify/functions/bonkscreener"
+  status = 200
