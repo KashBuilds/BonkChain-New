@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.graduating-glow-bar {
+  box-shadow: 0 0 6px 2px #ffb300cc, 0 0 12px 3px #ff910088;
+  position: relative;
+}
+
+.glow-animate-bar {
+  filter: drop-shadow(0 0 4px #ffe066cc) drop-shadow(0 0 8px #ffb30088);
+  position: relative;
+  z-index: 1;
+}
+
+.glow-shimmer {
+  position: absolute;
+  top: 0; left: 0; height: 80%; width: 100%;
+  background: linear-gradient(120deg, transparent 0%, #fffbe6 45%, #ffe066 55%, transparent 100%);
+  opacity: 0.22;
+  animation: shimmer-move 1.2s linear infinite;
+  pointer-events: none;
+  z-index: 2;
+  margin-top: 2px;
+}
+
+@keyframes shimmer-move {
+  0% { transform: translateX(-80%); }
+  100% { transform: translateX(120%); }
+}
+
+@keyframes transaction-pop-in {
+  0% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.95);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(4px) scale(1.03);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.transaction-pop {
+  animation: transaction-pop-in 0.44s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.transaction-row-animated {
+  transition: margin 0.3s cubic-bezier(0.22, 1, 0.36, 1), padding 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Update accent bar at bottom of header */
+header > .absolute.bg-gradient-to-r {
+  background: linear-gradient(90deg, #FF5E21 0%, #DE7604 50%, #EC8C01 100%) !important;
+}
+
+/* Update progress bar gradients for BonkTokenCard */
+.bg-gradient-to-r.from-yellow-400.via-orange-400.to-red-500,
+.bg-gradient-to-r.from-yellow-400.to-orange-400 {
+  background: linear-gradient(90deg, #FF5E21 0%, #DE7604 50%, #EC8C01 100%) !important;
+}
