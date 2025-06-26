@@ -19,7 +19,7 @@ const Header: React.FC<{ tokens?: any[] }> = ({ tokens }) => {
               onClick={() => navigate('/')}
               title="Go to Dashboard"
             >
-              <img src="/src/assets/bonk-logo.png" alt="Bonk Logo" className="w-10 h-10 rounded-full object-cover object-center group-hover:opacity-80 transition" />
+              <img src="/bonk-logo.png" alt="Bonk Logo" className="w-10 h-10 rounded-full object-cover object-center group-hover:opacity-80 transition" />
               <div className="flex flex-col leading-tight">
                 <h1 className="text-white text-lg font-bold group-hover:text-bonk-orange transition">BonkChain</h1>
                 <p className="text-gray-400 text-xs font-medium">Bonk Launchpad Screener</p>
