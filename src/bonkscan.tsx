@@ -75,17 +75,60 @@ const HELIUS_URL = `https://mainnet.helius-rpc.com/?api-key=${HELIUS_API_KEY}`;
 // --- StatsHeader Component ---
 const getRandomInt = (min: number, max: number) => Math.floor(Math.random() * (max - min + 1)) + min;
 
-const initialStats = {
-  totalBlocks: 5524216,
-  totalTx: 74301,
-  walletAddresses: 404,
+// --- Animated, realistic stats state ---
+const realisticInitialStats = {
+  totalBlocks: 4567123,
+  totalTx: 457,
+  walletAddresses: 246,
   avgBlockTime: 3.0,
   dailyTx: 56,
-  dailyTxHistory: [12, 38, 56, 22, 19, 24, 31, 29, 41, 56, 32, 28, 30, 27, 29, 31, 33, 35, 36, 38],
+  dailyTxHistory: [42, 51, 56, 48, 60, 54, 59, 62, 58, 56, 53, 57, 61, 55, 56, 54, 60, 62, 59, 56],
 };
 
+function useRealisticStats() {
+  const [stats, setStats] = useState(realisticInitialStats);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    function updateStats() {
+      setStats(prev => {
+        // Blocks: up or down by 1-10, sometimes a burst
+        const blockBurst = Math.random() < 0.15;
+        const blockDelta = (Math.random() < 0.5 ? 1 : -1) * (blockBurst ? Math.floor(Math.random() * 10) + 5 : Math.floor(Math.random() * 3) + 1);
+        const newBlocks = Math.max(0, prev.totalBlocks + blockDelta);
+        // Transactions: only up, by 1-10, sometimes a burst
+        const txBurst = Math.random() < 0.1;
+        const txDelta = txBurst ? Math.floor(Math.random() * 10) + 5 : Math.floor(Math.random() * 3) + 1;
+        const newTx = prev.totalTx + txDelta;
+        // Wallet addresses: up or down by 1-3
+        const walletDelta = (Math.random() < 0.6 ? 1 : -1) * (Math.floor(Math.random() * 3) + 1);
+        const newWallets = Math.max(0, prev.walletAddresses + walletDelta);
+        // Avg block time: random float between 2.5 and 4.5
+        const newBlockTime = Math.max(2.5, Math.min(4.5, prev.avgBlockTime + (Math.random() - 0.5) * 0.2));
+        // Daily tx: only up, by 1-7
+        const dailyTxDelta = Math.floor(Math.random() * 7) + 1;
+        const newDaily = prev.dailyTx + dailyTxDelta;
+        // Daily tx history: shift and add new value (always increasing)
+        const newHistory = [...prev.dailyTxHistory.slice(1), newDaily];
+        return {
+          totalBlocks: newBlocks,
+          totalTx: newTx,
+          walletAddresses: newWallets,
+          avgBlockTime: parseFloat(newBlockTime.toFixed(2)),
+          dailyTx: newDaily,
+          dailyTxHistory: newHistory,
+        };
+      });
+      timeout = setTimeout(updateStats, Math.floor(Math.random() * 1200) + 800);
+    }
+    updateStats();
+    return () => clearTimeout(timeout);
+  }, []);
+  return stats;
+}
+
 const StatsHeader: React.FC = () => {
-  const [stats, setStats] = useState(initialStats);
+  const stats = useRealisticStats();
 
   // Animated numbers for each stat
   const animatedBlocks = useAnimatedNumber(stats.totalBlocks);
@@ -94,40 +137,9 @@ const StatsHeader: React.FC = () => {
   const animatedBlockTime = useAnimatedNumber(stats.avgBlockTime, 400);
   const animatedDailyTx = useAnimatedNumber(stats.dailyTx);
 
-  // Randomly update stats
-  useEffect(() => {
-    let timeout: NodeJS.Timeout;
-    function updateStats() {
-      setStats(prev => {
-        // More frequent and visible changes
-        const burst = Math.random() < 0.5; // more frequent bursts
-        const newBlocks = prev.totalBlocks + getRandomInt(1, burst ? 100 : 10);
-        const newTx = prev.totalTx + getRandomInt(1, burst ? 200 : 20);
-        const newWallets = prev.walletAddresses + (Math.random() < 0.3 ? getRandomInt(1, 10) : 0);
-        const newBlockTime = Math.max(2.5, Math.min(4.5, prev.avgBlockTime + (Math.random() - 0.5) * 0.5));
-        // Daily tx history: shift and add new value
-        const newDaily = Math.max(10, prev.dailyTx + getRandomInt(-20, 30));
-        const newHistory = [...prev.dailyTxHistory.slice(1), newDaily];
-        return {
-          totalBlocks: newBlocks,
-          totalTx: newTx,
-          walletAddresses: newWallets,
-          avgBlockTime: parseFloat(newBlockTime.toFixed(1)),
-          dailyTx: newDaily,
-          dailyTxHistory: newHistory,
-        };
-      });
-      // Faster and more random updates
-      const next = getRandomInt(500, Math.random() < 0.5 ? 2000 : 1000);
-      timeout = setTimeout(updateStats, next);
-    }
-    updateStats();
-    return () => clearTimeout(timeout);
-  }, []);
-
   // Chart.js data
   const chartData = {
-    labels: stats.dailyTxHistory.map((_, i) => i + 1),
+    labels: stats.dailyTxHistory.map((_: unknown, i: number) => i + 1),
     datasets: [
       {
         data: stats.dailyTxHistory,
@@ -186,12 +198,20 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string |
 );
 // --- End StatsHeader ---
 
+// Helper to generate a random Solana address (44 chars, base58)
+function randomSolAddress() {
+  const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+  let addr = '';
+  for (let i = 0; i < 44; i++) addr += chars[Math.floor(Math.random() * chars.length)];
+  return addr;
+}
+
 // --- Fake blocks data generator with full history and fade-in ---
 function useFakeBlocksWithHistory(visibleCount: number = 5) {
   const [blocks, setBlocks] = useState(() => Array.from({ length: visibleCount }, (_, i) => ({
     number: 5524447 - i,
     createdAt: Date.now() - i * 4000,
-    miner: `0x${Math.random().toString(16).slice(2, 6)}...${Math.random().toString(16).slice(2, 6)}`,
+    miner: randomSolAddress(),
     txn: Math.floor(Math.random() * 11),
     reward: (Math.random() * 2).toFixed(2),
     fadeIn: false,
@@ -204,7 +224,7 @@ function useFakeBlocksWithHistory(visibleCount: number = 5) {
         const newBlock = {
           number: prev[0].number + 1,
           createdAt: Date.now(),
-          miner: `0x${Math.random().toString(16).slice(2, 6)}...${Math.random().toString(16).slice(2, 6)}`,
+          miner: randomSolAddress(),
           txn: Math.floor(Math.random() * 11),
           reward: (Math.random() * 2).toFixed(2),
           fadeIn: true,
@@ -354,14 +374,13 @@ const AllTransactionsPage: React.FC<{ transactions: any[]; newSignatures: string
 
 // --- TokenTransfersPage component ---
 const mockTokenTransfers = Array.from({ length: 20 }, (_, i) => ({
-  hash: `0x${Math.random().toString(16).slice(2, 10)}...${Math.random().toString(16).slice(2, 6)}`,
-  method: '0x42842e0e',
-  block: 5500000 + i,
-  from: `0x${Math.random().toString(16).slice(2, 6)}...${Math.random().toString(16).slice(2, 6)}`,
-  to: `0x${Math.random().toString(16).slice(2, 6)}...${Math.random().toString(16).slice(2, 6)}`,
-  tokenId: Math.floor(Math.random() * 25000),
-  amount: '-',
-  age: `${Math.floor(Math.random() * 24)}h ago`,
+  hash: randomSolAddress().slice(0, 16),
+  method: ['Transfer', 'Mint', 'Burn'][Math.floor(Math.random() * 3)],
+  block: 5524400 + i,
+  from: randomSolAddress(),
+  to: randomSolAddress(),
+  tokenId: Math.floor(Math.random() * 10000),
+  amount: (Math.random() * 1000).toFixed(2),
 }));
 
 const TokenTransfersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => (
@@ -503,65 +522,71 @@ const chartOptions: ChartOptions<'line'> = {
 };
 
 const ChartAndStatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => (
-  <div className="flex flex-col w-full max-w-7xl mx-auto py-10 px-2">
-    <div className="flex items-center gap-4 mb-8">
+  <div className="flex flex-col w-full max-w-7xl mx-auto py-12 px-4 sm:px-8">
+    <div className="flex items-center gap-4 mb-10">
       <button onClick={onBack} className="px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors border border-gray-700 hover:border-orange-500/30">
         ← Back to dashboard
       </button>
-      <h1 className="text-3xl font-bold text-white flex items-center gap-3">
-        <BarChart3 className="w-8 h-8 text-orange-500" />
+      <h1 className="text-4xl font-bold text-white flex items-center gap-3 tracking-tight">
+        <BarChart3 className="w-10 h-10 text-orange-500" />
         Chart & stats
       </h1>
     </div>
-    {/* Stats grid */}
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-      {fakeStats.map((stat, i) => (
-        <div key={i} className="rounded-xl p-6 flex flex-col gap-2 shadow bg-[#181c24] border border-[#232a3a] min-h-[90px]">
-          <div className="text-gray-400 text-base font-normal mb-0.5">{stat.label}</div>
-          <div className="text-2xl font-bold text-white -mt-1">{stat.value}</div>
-        </div>
-      ))}
-    </div>
-    {/* Charts section */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-      {chartConfigs.map((chart, i) => {
-        const labels = Array.from({ length: chart.data.length }, (_, idx) => `Day ${idx + 1}`);
-        const data = {
-          labels,
-          datasets: [
-            {
-              label: chart.title,
-              data: chart.data,
-              borderColor: chart.color,
-              backgroundColor: chart.color + '33',
-              fill: true,
-              isBonk: chart.isBonk,
-            },
-          ],
-        };
-        return (
-          <div key={i} className="rounded-xl p-6 shadow bg-[#181c24] border border-[#232a3a] flex flex-col">
-            <div className="text-gray-300 font-semibold text-lg mb-2">{chart.title}</div>
-            <div className="flex-1 flex items-end">
-              <Line data={data} options={chartOptions} height={96} />
-            </div>
+    {/* Stats Section */}
+    <div className="mb-12">
+      <h2 className="text-2xl font-semibold text-bonk-orange mb-6 tracking-wide">Network & Token Stats</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {fakeStats.map((stat, i) => (
+          <div key={i} className="rounded-2xl p-8 flex flex-col gap-3 shadow bg-[#181c24] border border-[#232a3a] min-h-[110px]">
+            <div className="text-gray-400 text-base font-normal mb-0.5">{stat.label}</div>
+            <div className="text-3xl font-extrabold text-white -mt-1 tracking-tight">{stat.value}</div>
           </div>
-        );
-      })}
+        ))}
+      </div>
+    </div>
+    {/* Charts Section */}
+    <div className="mb-12">
+      <h2 className="text-2xl font-semibold text-bonk-orange mb-6 tracking-wide">Activity & Growth Charts</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+        {chartConfigs.map((chart, i) => {
+          const labels = Array.from({ length: chart.data.length }, (_, idx) => `Day ${idx + 1}`);
+          const data = {
+            labels,
+            datasets: [
+              {
+                label: chart.title,
+                data: chart.data,
+                borderColor: chart.color,
+                backgroundColor: chart.color + '33',
+                fill: true,
+                isBonk: chart.isBonk,
+              },
+            ],
+          };
+          return (
+            <div key={i} className="rounded-2xl p-8 shadow bg-[#181c24] border border-[#232a3a] flex flex-col min-h-[320px]">
+              <div className="text-gray-300 font-semibold text-lg mb-4">{chart.title}</div>
+              <div className="flex-1 flex items-end">
+                <Line data={data} options={chartOptions} height={120} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
     {/* Search/filter bar (fake) */}
-    <div className="flex items-center gap-4 mb-8">
-      <select className="bg-[#101624] border border-[#232a3a] text-gray-300 rounded-lg px-3 py-2">
+    <div className="flex flex-col md:flex-row items-center gap-4 mb-8 mt-8">
+      <select className="bg-[#101624] border border-[#232a3a] text-gray-300 rounded-lg px-3 py-2 w-full md:w-auto">
         <option>All stats</option>
       </select>
-      <div className="flex gap-2">
-        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium">All time</button>
-        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium">1M</button>
-        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium">3M</button>
-        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium">6M</button>
-        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium">1Y</button>
+      <div className="flex gap-2 w-full md:w-auto">
+        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium w-full md:w-auto">All time</button>
+        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium w-full md:w-auto">1M</button>
+        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium w-full md:w-auto">3M</button>
+        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium w-full md:w-auto">6M</button>
+        <button className="px-3 py-1 rounded bg-[#232a3a] text-gray-300 font-medium w-full md:w-auto">1Y</button>
       </div>
-      <input className="flex-1 bg-[#101624] border border-[#232a3a] text-gray-300 rounded-lg px-3 py-2" placeholder="Find chart, metric..." />
+      <input className="flex-1 bg-[#101624] border border-[#232a3a] text-gray-300 rounded-lg px-3 py-2 min-w-[200px]" placeholder="Find chart, metric..." />
     </div>
   </div>
 );
@@ -667,6 +692,8 @@ function App() {
     return addr.slice(0, 3) + '...' + addr.slice(-3);
   }
 
+  const stats = useRealisticStats();
+
   return (
     <div className="min-h-screen bg-gray-950 flex">
       {/* Sidebar */}
@@ -681,40 +708,11 @@ function App() {
           <ChartAndStatsPage onBack={() => setShowChartAndStats(false)} />
         ) : (
           <>
-            <StatsHeader />
-            {/* Main two-column layout */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Left column: blocks */}
-              <div>
-                <LatestBlocks onShowAllBlocks={() => { setShowTokenTransfers(true); setShowAllTransactions(false); setShowChartAndStats(false); }} />
-              </div>
-              {/* Right column: transactions */}
-              <div>
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-white flex items-center space-x-2">
-                    <Activity className="w-6 h-6 text-orange-500" />
-                    <span>Latest transactions</span>
-                  </h2>
-                  <div className="flex items-center space-x-2 text-sm text-gray-400">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span>Live</span>
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  {transactions.map((transaction, index) => (
-                    <div
-                      key={transaction.signature}
-                      className={`transaction-row-animated ${newSignatures.includes(transaction.signature) ? 'transaction-pop' : ''}`}
-                    >
-                      <TransactionRow {...transaction} />
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-8 text-center">
-                  <button className="px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors border border-gray-700 hover:border-orange-500/30">
-                    View all transactions
-                  </button>
-                </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
+              <DashboardStatsRow stats={stats} />
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                <LatestBlocksDashboard onShowAllBlocks={() => { setShowTokenTransfers(true); setShowAllTransactions(false); setShowChartAndStats(false); }} />
+                <LatestTransactionsDashboard transactions={transactions} newSignatures={newSignatures} onShowAllTransactions={() => { setShowAllTransactions(true); setShowTokenTransfers(false); setShowChartAndStats(false); }} />
               </div>
             </div>
           </>
@@ -804,6 +802,150 @@ const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, 
       <div className="mt-3 flex items-center space-x-2 text-sm">
         <span className="text-gray-400">From:</span>
         <span className="text-gray-300 font-mono">{from}</span>
+      </div>
+    </div>
+  );
+};
+
+const DashboardStatsRow: React.FC<{ stats: {
+  totalBlocks: number;
+  totalTx: number;
+  walletAddresses: number;
+  avgBlockTime: number;
+  dailyTx: number;
+  dailyTxHistory: number[];
+} }> = ({ stats }) => {
+  const animatedBlocks = useAnimatedNumber(stats.totalBlocks);
+  const animatedTx = useAnimatedNumber(stats.totalTx);
+  const animatedWallets = useAnimatedNumber(stats.walletAddresses);
+  const animatedBlockTime = useAnimatedNumber(stats.avgBlockTime, 400);
+  const animatedDailyTx = useAnimatedNumber(stats.dailyTx);
+  // Chart.js data for daily tx
+  const chartData = {
+    labels: stats.dailyTxHistory.map((_: unknown, i: number) => i + 1),
+    datasets: [
+      {
+        data: stats.dailyTxHistory,
+        fill: true,
+        backgroundColor: 'rgba(59,130,246,0.08)',
+        borderColor: '#3b82f6',
+        tension: 0.4,
+        pointRadius: 0,
+      },
+    ],
+  };
+  const chartOptions = {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    scales: { x: { display: false }, y: { display: false } },
+  };
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#fff" strokeWidth="2"/><rect x="7" y="7" width="10" height="10" rx="2" stroke="#fbbf24" strokeWidth="2"/></svg>
+        <div>
+          <div className="text-gray-400 text-base font-normal mb-0.5">Total blocks</div>
+          <div className="text-2xl font-bold text-white -mt-1">{animatedBlocks.toLocaleString()}</div>
+        </div>
+      </div>
+      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M17 17H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" stroke="#fff" strokeWidth="2"/><path d="M7 17v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#fbbf24" strokeWidth="2"/></svg>
+        <div>
+          <div className="text-gray-400 text-base font-normal mb-0.5">Total transactions</div>
+          <div className="text-2xl font-bold text-white -mt-1">{animatedTx.toLocaleString()}</div>
+        </div>
+      </div>
+      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" stroke="#fff" strokeWidth="2"/><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z" stroke="#fbbf24" strokeWidth="2"/></svg>
+        <div>
+          <div className="text-gray-400 text-base font-normal mb-0.5">Wallet addresses</div>
+          <div className="text-2xl font-bold text-white -mt-1">{animatedWallets.toLocaleString()}</div>
+        </div>
+      </div>
+      <div className="rounded-xl p-6 flex flex-col justify-between shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-gray-400 text-base font-normal">Daily transactions</div>
+          <div className="text-2xl font-bold text-white">{animatedDailyTx}</div>
+        </div>
+        <div className="h-12 w-full flex items-end">
+          <Line data={chartData} options={chartOptions} height={48} />
+        </div>
+        <div className="mt-2 text-gray-400 text-xs">Average block time: <span className="text-white font-bold">{animatedBlockTime}s</span></div>
+      </div>
+    </div>
+  );
+};
+
+// --- LatestBlocksDashboard ---
+const LatestBlocksDashboard: React.FC<{ onShowAllBlocks: () => void }> = ({ onShowAllBlocks }) => {
+  // Show 7 blocks to fill the section visually
+  const { blocks } = useFakeBlocksWithHistory(7);
+  // Timer to force re-render every second for dynamic time ago
+  const [, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+  function getTimeAgo(createdAt: number) {
+    const seconds = Math.floor((Date.now() - createdAt) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const mins = Math.floor(seconds / 60);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
+  return (
+    <div className="bg-[#181c24] border border-[#232a3a] rounded-xl p-4 flex flex-col h-full min-w-[260px]">
+      <div className="text-lg font-bold text-white mb-2">Latest blocks</div>
+      <div className="text-xs text-gray-400 mb-3">Network utilization: <span className="text-blue-400">0.00%</span></div>
+      <div className="flex-1 flex flex-col gap-3">
+        {blocks.map((block, idx) => (
+          <div key={block.number} className={`rounded-lg px-3 py-2 bg-[#101624] border border-[#232a3a] flex flex-col gap-1 ${block.fadeIn ? 'transaction-pop' : ''}`}>
+            <div className="flex items-center justify-between">
+              <span className="text-blue-400 font-mono font-bold text-base">{block.number}</span>
+              <span className="text-gray-400 text-xs">{getTimeAgo(block.createdAt)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <span>Txn {block.txn}</span>
+              <span>Reward {block.reward}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <span>Miner</span>
+              <span className="text-gray-300 font-mono truncate max-w-[120px]">{block.miner.slice(0, 6)}...{block.miner.slice(-4)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="pt-3 text-center">
+        <a href="#" className="text-blue-400 text-xs hover:underline" onClick={e => { e.preventDefault(); onShowAllBlocks(); }}>View all blocks</a>
+      </div>
+    </div>
+  );
+};
+
+// --- LatestTransactionsDashboard ---
+const LatestTransactionsDashboard: React.FC<{ onShowAllTransactions: () => void, transactions: LocalTransaction[], newSignatures: string[] }> = ({ onShowAllTransactions, transactions, newSignatures }) => {
+  return (
+    <div className="bg-[#181c24] border border-[#232a3a] rounded-xl p-4 flex flex-col h-full min-w-[340px]">
+      <div className="text-lg font-bold text-white mb-2">Latest transactions</div>
+      <div className="flex items-center gap-2 bg-[#232a3a] text-xs px-3 py-2 rounded mb-3">
+        <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse inline-block"></span>
+        <span className="text-green-400 font-semibold">Live</span>
+      </div>
+      <div className="flex-1 flex flex-col gap-3">
+        {transactions.slice(0, 6).map((tx) => (
+          <div
+            key={tx.signature}
+            className={`transaction-row-animated ${newSignatures.includes(tx.signature) ? 'transaction-pop' : ''}`}
+          >
+            <TransactionRow {...tx} />
+          </div>
+        ))}
+      </div>
+      <div className="pt-3 text-center">
+        <a href="#" className="text-blue-400 text-xs hover:underline" onClick={e => { e.preventDefault(); onShowAllTransactions(); }}>View all transactions</a>
       </div>
     </div>
   );
