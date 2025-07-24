@@ -12,7 +12,10 @@ import {
   Activity,
   ArrowUpRight,
   ArrowDownRight,
-  ArrowRightLeft
+  ArrowRightLeft,
+  Clipboard,
+  X,
+  Search as SearchIcon
 } from 'lucide-react';
 import { Line } from 'react-chartjs-2';
 import {
@@ -57,7 +60,7 @@ const MetricCard: React.FC<MetricCardProps> = ({ title, value, change, isPositiv
   <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4 hover:bg-gray-900/80 hover:border-orange-500/30 transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10 group">
     <div className="flex flex-col">
       <span className="text-gray-400 text-sm font-medium mb-1">{title}</span>
-      <span className="text-white text-xl font-bold font-mono">{value}</span>
+      <span className="text-white text-xl font-bold font-sans">{value}</span>
       {change && (
         <span className={`text-sm font-medium mt-1 ${isPositive ? 'text-green-400' : 'text-red-400'}`}>
           {change}
@@ -191,8 +194,8 @@ const StatCard: React.FC<{ icon: React.ReactNode; label: string; value: string |
       {icon}
     </div>
     <div>
-      <div className="text-gray-400 text-base font-normal mb-0.5" style={{ fontFamily: 'DM Sans, Inter, sans-serif' }}>{label}</div>
-      <div className="text-3xl font-bold text-white -mt-1" style={{ fontFamily: 'DM Sans, Inter, sans-serif', letterSpacing: '-0.01em' }}>{value}</div>
+      <div className="text-gray-400 text-base font-normal mb-0.5" style={{ fontFamily: 'DM Sans, Rubik, sans-serif' }}>{label}</div>
+      <div className="text-3xl font-bold text-white -mt-1" style={{ fontFamily: 'DM Sans, Rubik, sans-serif', letterSpacing: '-0.01em' }}>{value}</div>
     </div>
   </div>
 );
@@ -303,13 +306,13 @@ const LatestBlocks: React.FC<{ onShowAllBlocks: () => void }> = ({ onShowAllBloc
           return (
             <div key={block.number} className={`flex items-center justify-between text-sm py-2 px-3 rounded-lg bg-transparent border border-blue-500/20 hover:bg-blue-500/5 transition-colors duration-200 ${block.fadeIn ? 'animate-fadeIn' : ''}`} style={{ animationDuration: '0.7s' }}>
               <div className="flex items-center gap-2">
-                <span className="text-blue-400 font-mono font-bold cursor-pointer hover:underline">{animatedNumber}</span>
+                <span className="text-blue-400 font-sans font-bold cursor-pointer hover:underline">{animatedNumber}</span>
                 <span className="text-gray-500">{getTimeAgo(block.createdAt)}</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-gray-400">
                 <span>Txn {block.txn}</span>
                 <span>Reward {block.reward}</span>
-                <span>Miner <span className="text-gray-300 font-mono">{block.miner}</span></span>
+                <span>Miner <span className="text-gray-300 font-sans">{block.miner}</span></span>
               </div>
             </div>
           );
@@ -408,11 +411,11 @@ const TokenTransfersPage: React.FC<{ onBack: () => void }> = ({ onBack }) => (
         <tbody>
           {mockTokenTransfers.map((tx, i) => (
             <tr key={i} className="border-b border-[#232a3a] hover:bg-[#181c2a] transition group">
-              <td className="px-4 py-2 text-blue-400 font-mono cursor-pointer hover:underline">{tx.hash}</td>
-              <td className="px-4 py-2 font-mono bg-[#181c2a] rounded text-xs">{tx.method}</td>
-              <td className="px-4 py-2 font-mono">{tx.block}</td>
-              <td className="px-4 py-2 text-blue-400 font-mono group-hover:underline cursor-pointer">{tx.from}</td>
-              <td className="px-4 py-2 text-blue-400 font-mono group-hover:underline cursor-pointer">{tx.to}</td>
+              <td className="px-4 py-2 text-blue-400 font-sans cursor-pointer hover:underline">{tx.hash}</td>
+              <td className="px-4 py-2 font-sans bg-[#181c2a] rounded text-xs">{tx.method}</td>
+              <td className="px-4 py-2 font-sans">{tx.block}</td>
+              <td className="px-4 py-2 text-blue-400 font-sans group-hover:underline cursor-pointer">{tx.from}</td>
+              <td className="px-4 py-2 text-blue-400 font-sans group-hover:underline cursor-pointer">{tx.to}</td>
             </tr>
           ))}
         </tbody>
@@ -591,8 +594,359 @@ const ChartAndStatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   </div>
 );
 
+function BlockDetailsPage({ block, onBack }: { block: any, onBack: () => void }) {
+  const [activeTab, setActiveTab] = useState<'transactions' | 'rewards' | 'programs' | 'accounts'>('transactions');
+
+  // Mock block details
+  const blockDetails = [
+    { label: 'Blockhash', value: block.hash || '9MoyK3pozdYxsDYz97DUpYt82kzQvqz9744BmJr3PJz', copy: block.hash || '9MoyK3pozdYxsDYz97DUpYt82kzQvqz9744BmJr3PJz' },
+    { label: 'Slot', value: block.number?.toLocaleString(), copy: block.number?.toString() },
+    { label: 'Slot Leader', value: 'fotby1ABxpei2EVH9uXJ6bKHYgPjbg4Sny9eRzQjtRN', copy: 'fotby1ABxpei2EVH9uXJ6bKHYgPjbg4Sny9eRzQjtRN', color: 'text-green-400' },
+    { label: 'Timestamp (Local)', value: new Date(block.createdAt).toLocaleString() },
+    { label: 'Timestamp (UTC)', value: new Date(block.createdAt).toUTCString() },
+    { label: 'Epoch', value: '820', copy: '820', color: 'text-green-400' },
+    { label: 'Parent Blockhash', value: 'ExTdqgreuPsZPkxvrvG5M2BMhMBn763Yy5vEPPNDVCr', copy: 'ExTdqgreuPsZPkxvrvG5M2BMhMBn763Yy5vEPPNDVCr' },
+    { label: 'Parent Slot', value: (block.number - 1)?.toLocaleString(), copy: (block.number - 1)?.toString() },
+    { label: 'Parent Slot Leader', value: 'fotby1ABxpei2EVH9uXJ6bKHYgPjbg4Sny9eRzQjtRN', copy: 'fotby1ABxpei2EVH9uXJ6bKHYgPjbg4Sny9eRzQjtRN', color: 'text-green-400' },
+    { label: 'Child Slot', value: (block.number + 1)?.toLocaleString(), copy: (block.number + 1)?.toString() },
+    { label: 'Child Slot Leader', value: 'DrpBCbVkVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy', copy: 'DrpBCbVkVnDK7maPM5tGv6MvB3v1sRMC86PZ8okm21hy', color: 'text-green-400' },
+    { label: 'Processed Transactions', value: '1518' },
+    { label: 'Successful Transactions', value: '1320' },
+    { label: 'Compute Unit Utilization', value: '43,334,464 / 50,000,000 (87%)' },
+    { label: 'Successful Compute Unit Utilization', value: '28,627,109 / 50,000,000 (57%)' },
+  ];
+
+  // Mock transactions
+  const mockTxs = Array.from({ length: 10 }, (_, i) => ({
+    idx: 229 + i,
+    result: 'Success',
+    signature: Math.random().toString(36).slice(2, 18),
+    fee: '◎0.000005',
+    compute: (Math.random() * 35000 + 1000).toFixed(0),
+    programs: ['System Program', 'Raydium AMM Program', 'Compute Budget Program', 'Token Program'],
+  }));
+
+  // Mock rewards
+  const mockRewards = [
+    {
+      address: 'fotby1ABxpei2EVH9uXJ6bKHYgPjbg4Sny9eRzQjtRN',
+      type: 'Fee',
+      amount: '◎0.03287356',
+      newBalance: '◎70.524498248',
+      percent: '0.046634703%'
+    }
+  ];
+
+  // Mock programs
+  const mockProgramStats = [
+    { label: 'Unique Programs Count', value: 103 },
+    { label: 'Total Instructions', value: 4659 }
+  ];
+  const mockPrograms = [
+    { program: 'Vote Program', txCount: 869, pctTx: '57.25%', instrCount: 869, pctInstr: '18.65%', success: '100%' },
+    { program: 'Compute Budget Program', txCount: 594, pctTx: '39.13%', instrCount: 1184, pctInstr: '25.41%', success: '67%' },
+    { program: 'System Program', txCount: 274, pctTx: '18.05%', instrCount: 669, pctInstr: '14.36%', success: '85%' },
+    { program: 'Token Program', txCount: 152, pctTx: '10.01%', instrCount: 847, pctInstr: '18.18%', success: '84%' },
+    { program: 'Associated Token Program', txCount: 71, pctTx: '4.68%', instrCount: 102, pctInstr: '2.19%', success: '85%' },
+    { program: 'MEV1enscUm6tsQRoGd9h6nLQaQspKj7DB2M5FwM3Xvz', txCount: 67, pctTx: '4.41%', instrCount: 67, pctInstr: '1.44%', success: '30%' },
+  ];
+
+  // Mock accounts
+  const mockAccounts = [
+    { account: 'Token Program', rw: 50, ro: 438, total: 488, pct: '32.15%' },
+    { account: 'Sol11111111111111111111111111111111111111112', rw: 57, ro: 398, total: 455, pct: '29.97%' },
+    { account: 'System Program', rw: 0, ro: 326, total: 326, pct: '21.48%' },
+    { account: 'GpMzbSM2GgvTKHjrzEGfMFoaZ8UR2XF4v8vHTvxFbL', rw: 7, ro: 316, total: 323, pct: '21.28%' },
+    { account: 'LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9VuAPwxo', rw: 59, ro: 256, total: 315, pct: '20.75%' },
+  ];
+
+  // Helper for explorer links
+  const explorerUrl = (type: 'tx' | 'address' | 'program', id: string) => {
+    if (type === 'tx') return `https://explorer.solana.com/tx/${id}`;
+    if (type === 'address' || type === 'program') return `https://explorer.solana.com/address/${id}`;
+    return '#';
+  };
+
+  return (
+    <div className="w-full max-w-5xl mx-auto mt-10 mb-10">
+      <button
+        onClick={onBack}
+        className="mb-6 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-white rounded-lg font-medium transition-colors border border-gray-700 hover:border-orange-500/30"
+      >
+        ← Back to dashboard
+      </button>
+      {/* Header */}
+      <div className="mb-2 text-xs text-gray-400 uppercase tracking-widest font-semibold">Details</div>
+      <div className="text-3xl font-bold text-white mb-2">Block</div>
+      <div className="border-b border-[#232a3a] mb-8" />
+      {/* Overview Card */}
+      <div className="rounded-2xl shadow-lg bg-[#181c24] border border-orange-400/30 p-0 overflow-hidden mb-10">
+        <div className="bg-[#101624] px-6 py-4 text-lg font-bold text-white border-b border-[#232a3a]">Overview</div>
+        <table className="w-full text-left text-base">
+          <tbody>
+            {blockDetails.map((row, i) => (
+              <tr key={i} className="border-b border-[#232a3a] last:border-0 group hover:bg-[#232a3a]/30 transition">
+                <td className="py-3 px-6 text-gray-400 font-medium w-1/2">{row.label}</td>
+                <td className={`py-3 px-6 font-sans font-bold text-right ${row.color || 'text-orange-400'}`}>{row.value} {row.copy && (
+                  <button onClick={() => copyToClipboard(row.copy!)} className="ml-2 text-orange-400 opacity-70 hover:opacity-100" title="Copy">
+                    <Clipboard size={16} />
+                  </button>
+                )}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {/* Tabs */}
+      <div className="flex items-center gap-8 border-b border-[#232a3a] mb-2 px-2">
+        {['transactions', 'rewards', 'programs', 'accounts'].map(tab => (
+          <button
+            key={tab}
+            onClick={() => setActiveTab(tab as any)}
+            className={`py-3 px-1 text-base font-semibold capitalize border-b-2 transition-all duration-150 ${activeTab === tab ? 'border-orange-400 text-white' : 'border-transparent text-gray-400 hover:text-orange-400'}`}
+          >
+            {tab.charAt(0).toUpperCase() + tab.slice(1)}
+          </button>
+        ))}
+      </div>
+      {/* Tab Content */}
+      {activeTab === 'transactions' && (
+        <div className="rounded-2xl bg-[#181c24] border border-orange-400/30 shadow-lg mt-6 overflow-x-auto">
+          <div className="px-6 py-4 text-lg font-bold text-white border-b border-[#232a3a] flex items-center justify-between">
+            <span>Filtered Block Transactions (649/1518)</span>
+            <select className="bg-[#232a3a] border border-orange-400/30 text-gray-300 rounded px-3 py-1 text-sm">
+              <option>All Except Votes</option>
+              <option>All</option>
+              <option>Only Success</option>
+              <option>Only Failed</option>
+            </select>
+          </div>
+          <table className="w-full text-left text-base">
+            <thead className="bg-[#101624]">
+              <tr>
+                <th className="py-3 px-6 font-semibold text-gray-400">#</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Result</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Transaction Signature</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Fee</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Compute</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Invoked Programs</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mockTxs.map((tx, i) => (
+                <tr key={i} className="border-b border-[#232a3a] last:border-0 group hover:bg-[#232a3a]/30 transition">
+                  <td className="py-3 px-6 text-gray-400 font-sans">{tx.idx}</td>
+                  <td className="py-3 px-6"><span className="bg-green-900/40 text-green-400 px-3 py-1 rounded-full text-xs font-bold">{tx.result}</span></td>
+                  <td className="py-3 px-6 font-sans text-blue-400 flex items-center gap-2">
+                    {tx.signature}
+                    <button onClick={() => copyToClipboard(tx.signature)} className="text-orange-400 opacity-70 hover:opacity-100" title="Copy">
+                      <Clipboard size={16} />
+                    </button>
+                  </td>
+                  <td className="py-3 px-6 font-sans text-orange-400">{tx.fee}</td>
+                  <td className="py-3 px-6 font-sans text-orange-400">{tx.compute}</td>
+                  <td className="py-3 px-6 text-green-400 font-sans">
+                    {tx.programs.map((p, j) => (
+                      <span key={j} className="block text-xs font-sans">{p}</span>
+                    ))}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {activeTab === 'rewards' && (
+        <div className="rounded-2xl bg-[#181c24] border border-orange-400/30 shadow-lg mt-6 overflow-x-auto">
+          <div className="px-6 py-4 text-lg font-bold text-white border-b border-[#232a3a]">Block Rewards</div>
+          <table className="w-full text-left text-base">
+            <thead className="bg-[#101624]">
+              <tr>
+                <th className="py-3 px-6 font-semibold text-gray-400">Address</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Type</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Amount</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">New Balance</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Percent Change</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mockRewards.map((r, i) => (
+                <tr key={i} className="border-b border-[#232a3a] last:border-0 group hover:bg-[#232a3a]/30 transition">
+                  <td className="py-3 px-6 font-sans text-green-400 flex items-center gap-2">
+                    <button onClick={() => copyToClipboard(r.address)} className="text-orange-400 opacity-70 hover:opacity-100" title="Copy"><Clipboard size={16} /></button>
+                    <a href={explorerUrl('address', r.address)} target="_blank" rel="noopener noreferrer" className="hover:underline">{r.address}</a>
+                  </td>
+                  <td className="py-3 px-6 text-gray-300 font-sans">{r.type}</td>
+                  <td className="py-3 px-6 font-sans text-orange-400">{r.amount}</td>
+                  <td className="py-3 px-6 font-sans text-orange-400">{r.newBalance}</td>
+                  <td className="py-3 px-6 font-sans text-yellow-300 font-bold">{r.percent}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+      {activeTab === 'programs' && (
+        <>
+          <div className="rounded-2xl bg-[#181c24] border border-orange-400/30 shadow-lg mt-6 mb-6 overflow-x-auto">
+            <div className="px-6 py-4 text-lg font-bold text-white border-b border-[#232a3a]">Block Program Stats</div>
+            <table className="w-full text-left text-base">
+              <tbody>
+                {mockProgramStats.map((row, i) => (
+                  <tr key={i} className="border-b border-[#232a3a] last:border-0">
+                    <td className="py-3 px-6 text-gray-400 font-medium w-1/2">{row.label}</td>
+                    <td className="py-3 px-6 text-orange-400 font-sans font-bold">{row.value}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="rounded-2xl bg-[#181c24] border border-orange-400/30 shadow-lg mb-6 overflow-x-auto">
+            <div className="px-6 py-4 text-lg font-bold text-white border-b border-[#232a3a]">Block Programs</div>
+            <table className="w-full text-left text-base">
+              <thead className="bg-[#101624]">
+                <tr>
+                  <th className="py-3 px-6 font-semibold text-gray-400">Program</th>
+                  <th className="py-3 px-6 font-semibold text-gray-400">Transaction Count</th>
+                  <th className="py-3 px-6 font-semibold text-gray-400">% of Total</th>
+                  <th className="py-3 px-6 font-semibold text-gray-400">Instruction Count</th>
+                  <th className="py-3 px-6 font-semibold text-gray-400">% of Total</th>
+                  <th className="py-3 px-6 font-semibold text-gray-400">Success Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                {mockPrograms.map((p, i) => (
+                  <tr key={i} className="border-b border-[#232a3a] last:border-0 group hover:bg-[#232a3a]/30 transition">
+                    <td className="py-3 px-6 font-sans text-green-400 flex items-center gap-2">
+                      <button onClick={() => copyToClipboard(p.program)} className="text-orange-400 opacity-70 hover:opacity-100" title="Copy"><Clipboard size={16} /></button>
+                      <a href={explorerUrl('program', p.program)} target="_blank" rel="noopener noreferrer" className="hover:underline">{p.program}</a>
+                    </td>
+                    <td className="py-3 px-6 font-sans text-orange-400">{p.txCount}</td>
+                    <td className="py-3 px-6 font-sans text-orange-400">{p.pctTx}</td>
+                    <td className="py-3 px-6 font-sans text-orange-400">{p.instrCount}</td>
+                    <td className="py-3 px-6 font-sans text-orange-400">{p.pctInstr}</td>
+                    <td className="py-3 px-6 font-sans text-yellow-300 font-bold">{p.success}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
+      {activeTab === 'accounts' && (
+        <div className="rounded-2xl bg-[#181c24] border border-orange-400/30 shadow-lg mt-6 overflow-x-auto">
+          <div className="px-6 py-4 text-lg font-bold text-white border-b border-[#232a3a]">Block Account Usage</div>
+          <table className="w-full text-left text-base">
+            <thead className="bg-[#101624]">
+              <tr>
+                <th className="py-3 px-6 font-semibold text-gray-400">Account</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Read-Write Count</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Read-Only Count</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">Total Count</th>
+                <th className="py-3 px-6 font-semibold text-gray-400">% of Transactions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {mockAccounts.map((a, i) => (
+                <tr key={i} className="border-b border-[#232a3a] last:border-0 group hover:bg-[#232a3a]/30 transition">
+                  <td className="py-3 px-6 font-sans text-green-400 flex items-center gap-2">
+                    <button onClick={() => copyToClipboard(a.account)} className="text-orange-400 opacity-70 hover:opacity-100" title="Copy"><Clipboard size={16} /></button>
+                    <a href={explorerUrl('address', a.account)} target="_blank" rel="noopener noreferrer" className="hover:underline">{a.account}</a>
+                  </td>
+                  <td className="py-3 px-6 font-sans text-orange-400">{a.rw}</td>
+                  <td className="py-3 px-6 font-sans text-orange-400">{a.ro}</td>
+                  <td className="py-3 px-6 font-sans text-orange-400">{a.total}</td>
+                  <td className="py-3 px-6 font-sans text-yellow-300 font-bold">{a.pct}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="flex justify-center py-6">
+            <button className="bg-green-400 hover:bg-green-500 text-black font-bold px-8 py-3 rounded-lg text-lg transition">Load More</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function copyToClipboard(text: string) {
+  navigator.clipboard.writeText(text);
+}
+
+// Add DashboardHeader component
+function DashboardHeaderWithSearch({ blockSearch, handleBlockInput, handleBlockKeyDown, handleClearSearch, blockResults, handleSelectBlock, showDropdown, setShowDropdown, inputRef }) {
+  const navigate = useNavigate();
+  return (
+    <div className="flex items-center w-full px-8 py-4 gap-8">
+      <div className="flex items-center gap-8 flex-1 min-w-0">
+        <img src="/bonk-logo.png" alt="Bonk Logo" className="w-9 h-9" />
+        <nav className="flex items-center gap-6">
+          <a href="/" className="text-white font-extralight hover:text-bonk-orange transition">BonkChain</a>
+          <a href="/bonkscan" className="text-white font-extralight hover:text-bonk-orange transition">BonkScan</a>
+          <button
+            onClick={() => navigate('/bonkswap')}
+            className="text-white font-extralight hover:text-bonk-orange transition focus:outline-none"
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          >
+            BonkSwap
+          </button>
+          <a href="/bonkstake" className="text-white font-extralight hover:text-bonk-orange transition">BonkStake</a>
+          <a href="https://x.com/bonkchainfun" target="_blank" rel="noopener noreferrer" className="text-white font-extralight hover:text-bonk-orange transition">Twitter</a>
+        </nav>
+      </div>
+      <div className="flex-1 flex justify-center">
+        <div className="relative w-full max-w-lg">
+          <input
+            ref={inputRef}
+            type="text"
+            className="w-full bg-[#181c24] border border-[#232a3a] text-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-bonk-orange transition"
+            placeholder="Search blocks..."
+            value={blockSearch}
+            onChange={handleBlockInput}
+            onKeyDown={handleBlockKeyDown}
+            onFocus={() => setShowDropdown(true)}
+          />
+          {blockSearch && (
+            <button
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-400"
+              onClick={handleClearSearch}
+              tabIndex={-1}
+              aria-label="Clear search"
+            >
+              <X size={18} />
+            </button>
+          )}
+          {showDropdown && blockResults.length > 0 && (
+            <div className="absolute z-20 mt-2 w-full bg-[#181c24] border border-[#232a3a] rounded-lg shadow-lg max-h-60 overflow-auto">
+              {blockResults.map((block, i) => (
+                <div
+                  key={block.number}
+                  className="px-4 py-2 text-gray-200 hover:bg-bonk-orange/20 cursor-pointer flex items-center justify-between"
+                  onMouseDown={() => handleSelectBlock(block.number)}
+                >
+                  <span>Block {block.number}</span>
+                  <span className="text-xs text-gray-400 ml-2">{block.txn} txns</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+      <div className="flex-1" />
+    </div>
+  );
+}
+
 function App() {
+  // --- Stat Card Data for Solana Explorer style ---
+  const supply = 605600000;
+  const circulating = 537900000;
+  const circulatingPercent = ((circulating / supply) * 100).toFixed(1);
+  const activeStake = 400000000;
+  const delinquentStake = 0.2;
   const { tokens } = useTokens();
+  // --- End new data ---
 
   const metrics = [
     { title: 'Market Cap', value: '$1.22B', change: '+1.12%', isPositive: true },
@@ -607,6 +961,54 @@ function App() {
   const [showAllTransactions, setShowAllTransactions] = useState(false);
   const [showTokenTransfers, setShowTokenTransfers] = useState(false);
   const [showChartAndStats, setShowChartAndStats] = useState(false);
+  const { blocks: latestBlocks, allBlocks } = useFakeBlocksWithHistory(5);
+  const [blockSearch, setBlockSearch] = useState("");
+  const [selectedBlock, setSelectedBlock] = useState<any | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Filter blocks for dropdown (unique results only)
+  const blockResults = blockSearch.length > 0
+    ? Array.from(new Set(
+        allBlocks
+          .filter(b => b.number.toString().includes(blockSearch))
+          .map(b => b.number)
+      ))
+      .slice(0, 5)
+      .map(num => allBlocks.find(b => b.number === num))
+      .filter(Boolean)
+    : [];
+
+  // Handle input change
+  function handleBlockInput(e: React.ChangeEvent<HTMLInputElement>) {
+    setBlockSearch(e.target.value);
+    setShowDropdown(true);
+  }
+
+  // Handle dropdown selection
+  function handleSelectBlock(num: number) {
+    const found = allBlocks.find(b => b.number === num);
+    if (found) setSelectedBlock(found);
+    setBlockSearch("");
+    setShowDropdown(false);
+  }
+
+  // Handle Enter key
+  function handleBlockKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' && blockResults.length > 0) {
+      handleSelectBlock(blockResults[0].number);
+    }
+    if (e.key === 'Escape') {
+      setShowDropdown(false);
+    }
+  }
+
+  // Handle clear
+  function handleClearSearch() {
+    setBlockSearch("");
+    setShowDropdown(false);
+    inputRef.current?.focus();
+  }
 
   useEffect(() => {
     if (!tokens.length) return;
@@ -694,46 +1096,246 @@ function App() {
 
   const stats = useRealisticStats();
 
+  // --- New: Cluster and Transaction Stats Data ---
+  const clusterStats = [
+    { label: 'Slot', value: latestBlocks[0]?.number.toLocaleString(), copy: latestBlocks[0]?.number.toString() },
+    { label: 'Block height', value: latestBlocks[0]?.number.toLocaleString(), copy: latestBlocks[0]?.number.toString() },
+    { label: 'Cluster time', value: new Date(latestBlocks[0]?.createdAt).toUTCString() },
+    { label: 'Slot time (1min avg)', value: `${(Math.random() * 100 + 350).toFixed(0)}ms` },
+    { label: 'Slot time (1hr avg)', value: `${(Math.random() * 100 + 350).toFixed(0)}ms` },
+    { label: 'Epoch', value: (820 + Math.floor(Math.random() * 10)).toString(), copy: (820 + Math.floor(Math.random() * 10)).toString() },
+    { label: 'Epoch progress', value: `${(Math.random() * 100).toFixed(1)}%` },
+    { label: 'Epoch time remaining (approx.)', value: `~${Math.floor(Math.random() * 6)}h ${Math.floor(Math.random() * 60)}m ${Math.floor(Math.random() * 60)}s` },
+  ];
+  const txStats = [
+    { label: 'Transaction count', value: stats.totalTx.toLocaleString() },
+    { label: 'Transactions per second (TPS)', value: (Math.random() * 4000 + 1000).toFixed(0) },
+  ];
+
+  // --- End new data ---
+
+  // TPS line chart data
+  const [tpsRange, setTpsRange] = useState<'30m' | '2h' | '6h'>('30m');
+  const [tpsLineData, setTpsLineData] = useState<number[]>(Array.from({ length: 60 }, () => 2000 + Math.floor(Math.random() * 200)));
+
+  // Animate the line chart by shifting in new data every second (gentle random walk)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTpsLineData(prev => {
+        const last = prev[prev.length - 1] || 2000;
+        // Gentle random walk: previous ± 40, clamp between 1200 and 4000
+        let nextVal = last + Math.floor(Math.random() * 81) - 40;
+        nextVal = Math.max(1200, Math.min(4000, nextVal));
+        const next = prev.slice(1);
+        next.push(nextVal);
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const tpsLineLabels = Array.from({ length: tpsLineData.length }, (_, i) => i + 1);
+  const tpsLineChartData = {
+    labels: tpsLineLabels,
+    datasets: [
+      {
+        label: 'Transactions this moment',
+        data: tpsLineData,
+        fill: true,
+        backgroundColor: 'rgba(255,153,0,0.08)',
+        borderColor: '#ff9900',
+        tension: 0.4,
+        pointRadius: 0,
+      },
+    ],
+  };
+  const tpsLineChartOptions = {
+    responsive: true,
+    animation: { duration: 500 },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          label: function(context: any) {
+            return `Transactions this moment: ${context.parsed.y}`;
+          }
+        }
+      }
+    },
+    scales: {
+      x: { display: false },
+      y: { display: false },
+    },
+  };
+
   return (
-    <div className="min-h-screen bg-gray-950 flex">
-      {/* Sidebar */}
-      <Sidebar onShowAllTransactions={() => { setShowAllTransactions(true); setShowTokenTransfers(false); setShowChartAndStats(false); }} onShowTokenTransfers={() => { setShowTokenTransfers(true); setShowAllTransactions(false); setShowChartAndStats(false); }} onShowChartAndStats={() => { setShowChartAndStats(true); setShowAllTransactions(false); setShowTokenTransfers(false); }} />
-      {/* Main content */}
-      <div className="flex-1 flex flex-col">
-        {showAllTransactions ? (
-          <AllTransactionsPage transactions={transactions} newSignatures={newSignatures} onBack={() => setShowAllTransactions(false)} />
-        ) : showTokenTransfers ? (
-          <TokenTransfersPage onBack={() => setShowTokenTransfers(false)} />
-        ) : showChartAndStats ? (
-          <ChartAndStatsPage onBack={() => setShowChartAndStats(false)} />
-        ) : (
-          <>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-4">
-              <DashboardStatsRow stats={stats} />
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                <LatestBlocksDashboard onShowAllBlocks={() => { setShowTokenTransfers(true); setShowAllTransactions(false); setShowChartAndStats(false); }} />
-                <LatestTransactionsDashboard transactions={transactions} newSignatures={newSignatures} onShowAllTransactions={() => { setShowAllTransactions(true); setShowTokenTransfers(false); setShowChartAndStats(false); }} />
+    <div className="min-h-screen bg-[#101315] flex flex-col items-center">
+      <DashboardHeaderWithSearch
+        blockSearch={blockSearch}
+        handleBlockInput={handleBlockInput}
+        handleBlockKeyDown={handleBlockKeyDown}
+        handleClearSearch={handleClearSearch}
+        blockResults={blockResults}
+        handleSelectBlock={handleSelectBlock}
+        showDropdown={showDropdown}
+        setShowDropdown={setShowDropdown}
+        inputRef={inputRef}
+      />
+      {/* Main content columns start here */}
+      {selectedBlock ? (
+        <BlockDetailsPage block={selectedBlock} onBack={() => setSelectedBlock(null)} />
+      ) : (
+        <>
+          <div className="w-full max-w-7xl mx-auto flex flex-col items-center px-4">
+            {/* Stat Cards Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-8 mb-4">
+              {/* Circulating Supply Card */}
+              <div className="card w-full px-8 py-5 flex flex-col justify-center rounded-xl shadow-sm">
+                <div className="text-base text-gray-300 font-semibold mb-1">Circulating Supply</div>
+                <div className="flex items-end gap-2">
+                  <span className="text-3xl text-bonk-orange" style={{ fontWeight: 350 }}>{(circulating/1e6).toFixed(1)}M</span>
+                  <span className="text-xl text-gray-400" style={{ fontWeight: 300 }}>/ {(supply/1e6).toFixed(1)}M</span>
+                </div>
+                <div className="text-sm mt-1 text-green-400 font-semibold">{circulatingPercent}% is circulating</div>
+              </div>
+              {/* Active Stake Card */}
+              <div className="card w-full px-8 py-5 flex flex-col justify-center rounded-xl shadow-sm">
+                <div className="text-base text-gray-300 font-semibold mb-1">Active Stake</div>
+                <div className="flex items-end gap-2">
+                  <span className="text-3xl text-bonk-orange" style={{ fontWeight: 350 }}>{(activeStake/1e6).toFixed(0)}M</span>
+                  <span className="text-xl text-gray-400" style={{ fontWeight: 300 }}>/ {(supply/1e6).toFixed(1)}M</span>
+                </div>
+                <div className="text-sm mt-1 text-green-400 font-semibold">Delinquent stake: {delinquentStake}%</div>
               </div>
             </div>
-          </>
-        )}
-        {/* Footer */}
-        <footer className="mt-16 border-t border-gray-800 bg-gray-900/30">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-6 h-6 bg-gradient-to-br from-orange-400 to-orange-600 rounded flex items-center justify-center">
-                  <Activity className="w-4 h-4 text-white" />
-                </div>
-                <span className="text-gray-400 text-sm">BonkScan - Solana Blockchain Explorer</span>
+            {/* Main Grid Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-6">
+              {/* Live Cluster Stats */}
+              <div className="card w-full px-0 py-0 overflow-hidden rounded-xl shadow-sm">
+                <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Live Cluster Stats</div>
+                <table className="w-full text-left text-base">
+                  <tbody>
+                    {clusterStats.map((row, i) => (
+                      <tr key={i} className="table-row group hover:bg-[#232a3a]/30 transition">
+                        <td className="py-3 px-6 text-gray-400 font-medium w-1/2 flex items-center gap-2">{row.label}{row.copy && (<button onClick={() => copyToClipboard(row.copy!)} className="ml-1 text-bonk-orange opacity-70 hover:opacity-100" title="Copy"><Clipboard size={16} /></button>)}</td>
+                        <td className="py-3 px-6 text-bonk-orange font-sans font-bold text-right">{row.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
-              <div className="text-gray-500 text-sm">
-                Built with ❤️ for the BONK community
+              {/* Live Transaction Stats */}
+              <div className="card w-full px-0 py-0 overflow-hidden rounded-xl shadow-sm">
+                <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Live Transaction Stats</div>
+                <table className="w-full text-left text-base">
+                  <tbody>
+                    {txStats.map((row, i) => (
+                      <tr key={i} className="table-row group hover:bg-[#232a3a]/30 transition">
+                        <td className="py-3 px-6 text-gray-400 font-medium w-1/2">{row.label}</td>
+                        <td className="py-3 px-6 text-bonk-orange font-sans font-bold text-right">{row.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {/* TPS history chart placeholder */}
+                <div className="px-6 pb-4 pt-2">
+                  <div className="text-gray-400 text-sm mb-2">TPS history</div>
+                  <div className="flex gap-2 mb-2">
+                    <button className={`px-3 py-1 rounded bg-[#232a3a] font-semibold text-xs border border-bonk-orange/30 ${tpsRange==='30m'?'text-bonk-orange':'text-gray-400'}`} onClick={()=>setTpsRange('30m')}>30m</button>
+                    <button className={`px-3 py-1 rounded bg-[#232a3a] font-semibold text-xs border border-bonk-orange/30 ${tpsRange==='2h'?'text-bonk-orange':'text-gray-400'}`} onClick={()=>setTpsRange('2h')}>2h</button>
+                    <button className={`px-3 py-1 rounded bg-[#232a3a] font-semibold text-xs border border-bonk-orange/30 ${tpsRange==='6h'?'text-bonk-orange':'text-gray-400'}`} onClick={()=>setTpsRange('6h')}>6h</button>
+                  </div>
+                  <div className="h-32 w-full bg-gradient-to-t from-bonk-orange/20 to-transparent rounded-lg flex items-end overflow-hidden mb-4">
+                    {/* Simulated bar chart */}
+                    {Array.from({ length: 24 }).map((_, i) => (
+                      <div key={i} className="mx-0.5 w-2 rounded bg-bonk-orange" style={{ height: `${Math.random() * 80 + 40}px` }}></div>
+                    ))}
+                  </div>
+                  {/* Interactive TPS line chart */}
+                  <div className="h-36 w-full">
+                    <Line data={tpsLineChartData} options={tpsLineChartOptions} height={140} />
+                  </div>
+                  <div className="text-xs text-gray-400 mt-2">For transaction confirmation time statistics, please visit <a href="https://validators.app" className="text-green-400 underline" target="_blank" rel="noopener noreferrer">validators.app</a> or <a href="https://solscan.io" className="text-green-400 underline" target="_blank" rel="noopener noreferrer">solscan.io</a></div>
+                </div>
+              </div>
+            </div>
+            {/* Footer Card: Kickstart your development journey */}
+            <div className="card w-full mt-2 mb-8 px-0 py-0 overflow-hidden rounded-xl shadow-sm">
+              <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Kickstart your development journey on BonkChain</div>
+              <div className="flex flex-row gap-4 px-6 py-4 items-start">
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                </div>
+                </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-blue-400 transition-colors">Setup Your BonkChain Environment</div>
+                  <div className="text-gray-400 text-sm">Install CLI tools, configure RPC endpoints, and deploy your first smart contract</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-green-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-green-400 transition-colors">Quick Start Guide</div>
+                  <div className="text-gray-400 text-sm">Learn account creation, token transfers, and basic transaction structure</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-orange-400 transition-colors">BonkChain Developer Bootcamp</div>
+                  <div className="text-gray-400 text-sm">Master advanced concepts: DEX development, yield farming, and DeFi protocols</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-purple-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-purple-400 transition-colors">60 Days of BonkChain</div>
+                  <div className="text-gray-400 text-sm">Daily challenges: build a DEX, create NFTs, and deploy complex DeFi protocols</div>
+                </div>
+              </div>
+              <div className="px-6 pb-4">
+                <div className="flex items-center justify-between text-sm text-gray-400">
+                  <span>Live Network Status</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-green-400">Online</span>
+                </div>
+              </div>
+                <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-ping"></div>
+                    <span>Blocks: 2,847,392</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                    <span>TPS: 65,432</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                    <span>Validators: 1,847</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </footer>
-      </div>
+        </>
+      )}
     </div>
   );
 }
@@ -780,13 +1382,13 @@ const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, 
             {getTypeIcon()}
             <span className="text-sm font-medium capitalize">{type}</span>
           </div>
-          <span className="text-gray-400 text-sm font-mono">{time}</span>
+          <span className="text-gray-400 text-sm font-sans">{time}</span>
           {symbol && (
-            <span className="text-bonk-orange text-xs font-mono font-bold">${symbol}</span>
+            <span className="text-bonk-orange text-xs font-sans font-bold">${symbol}</span>
           )}
         </div>
         <div className="flex items-center space-x-4">
-          <span className="text-white font-mono font-bold">{amount}</span>
+          <span className="text-white font-sans font-bold">{amount}</span>
           <a
             href={`https://birdeye.so/token/${mint || BONK_MINT}?chain=solana`}
             target="_blank"
@@ -801,7 +1403,7 @@ const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, 
       </div>
       <div className="mt-3 flex items-center space-x-2 text-sm">
         <span className="text-gray-400">From:</span>
-        <span className="text-gray-300 font-mono">{from}</span>
+        <span className="text-gray-300 font-sans">{from}</span>
       </div>
     </div>
   );
@@ -904,7 +1506,7 @@ const LatestBlocksDashboard: React.FC<{ onShowAllBlocks: () => void }> = ({ onSh
         {blocks.map((block, idx) => (
           <div key={block.number} className={`rounded-lg px-3 py-2 bg-[#101624] border border-[#232a3a] flex flex-col gap-1 ${block.fadeIn ? 'transaction-pop' : ''}`}>
             <div className="flex items-center justify-between">
-              <span className="text-blue-400 font-mono font-bold text-base">{block.number}</span>
+              <span className="text-blue-400 font-sans font-bold text-base">{block.number}</span>
               <span className="text-gray-400 text-xs">{getTimeAgo(block.createdAt)}</span>
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
@@ -913,7 +1515,7 @@ const LatestBlocksDashboard: React.FC<{ onShowAllBlocks: () => void }> = ({ onSh
             </div>
             <div className="flex items-center gap-2 text-xs text-gray-400">
               <span>Miner</span>
-              <span className="text-gray-300 font-mono truncate max-w-[120px]">{block.miner.slice(0, 6)}...{block.miner.slice(-4)}</span>
+              <span className="text-gray-300 font-sans truncate max-w-[120px]">{block.miner.slice(0, 6)}...{block.miner.slice(-4)}</span>
             </div>
           </div>
         ))}

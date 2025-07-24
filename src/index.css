@@ -1,6 +1,53 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+@import url('https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap');
+
+body, html, #root {
+  font-family: 'Rubik', sans-serif;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-weight: 300;
+  letter-spacing: 0;
+  background: #101315;
+  color: #fff;
+}
+
+/* Tailwind override for sans */
+.font-sans {
+  font-family: 'Rubik', sans-serif !important;
+  font-optical-sizing: auto;
+  font-style: normal;
+  font-weight: 300;
+}
+
+.font-light {
+  font-weight: 300 !important;
+}
+
+/* Card and table tweaks for pixel-perfect match */
+.card {
+  border-radius: 12px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.10);
+  background: #181c24;
+  border: 1px solid #232a3a;
+}
+.table-row {
+  border-bottom: 1px solid #232a3a;
+}
+.header-search {
+  font-size: 1rem;
+  border-radius: 8px;
+  padding: 0.75rem 1.5rem;
+  background: #232a3a;
+  border: 1px solid #232a3a;
+  color: #fff;
+}
+
+/* Remove serif/mono from homepage except where needed */
+.homepage-mono {
+  font-family: 'Rubik', monospace;
+}
 
 .graduating-glow-bar {
   box-shadow: 0 0 6px 2px #ffb300cc, 0 0 12px 3px #ff910088;
@@ -61,4 +108,24 @@ header > .absolute.bg-gradient-to-r {
 .bg-gradient-to-r.from-yellow-400.via-orange-400.to-red-500,
 .bg-gradient-to-r.from-yellow-400.to-orange-400 {
   background: linear-gradient(90deg, #FF5E21 0%, #DE7604 50%, #EC8C01 100%) !important;
+}
+
+/* Hide number input arrows for all browsers */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Marquee animation for price ticker */
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+.animate-scroll {
+  animation: marquee 30s linear infinite;
+  will-change: transform;
 }

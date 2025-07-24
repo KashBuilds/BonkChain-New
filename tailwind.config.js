@@ -3,18 +3,23 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
-      colors: {
-        'bonk-orange': '#FF5E21',
-        'bonk-yellow': '#EC8C01',
-        'bonk-orange2': '#DE7604',
-        'bonk-dark': '#181A20',
-        'bonk-card': '#23242A',
-        'bonk-border': '#292B32',
-        'custom-dark': '#181818',
-        'header-grey': '#262626',
-      },
       fontFamily: {
-        sans: ['DM Sans', 'Inter', 'sans-serif'],
+        sans: ['Rubik', 'sans-serif'],
+      },
+      fontWeight: {
+        light: 300,
+      },
+      colors: {
+        'bonk-orange': '#ff9900',
+        'explorer-bg': '#101315',
+        'explorer-card': '#181c24',
+        'explorer-border': '#232a3a',
+      },
+      borderRadius: {
+        'xl': '12px',
+      },
+      boxShadow: {
+        'explorer': '0 2px 8px 0 rgba(0,0,0,0.10)',
       },
       keyframes: {
         glowFlow: {

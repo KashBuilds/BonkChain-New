@@ -44,39 +44,39 @@ const TokenCard: React.FC<TokenCardProps> = ({ token }) => {
               <Star size={16} />
             </button>
           </div>
+          </div>
         </div>
-      </div>
 
-      {/* Launch time */}
-      {token.launchTime && (
+        {/* Launch time */}
+        {token.launchTime && (
         <div className="text-gray-500 text-xs font-mono mb-1">{token.launchTime}</div>
-      )}
+        )}
 
-      {/* Market cap */}
-      <div>
+        {/* Market cap */}
+        <div>
         <div className="text-gray-500 text-xs">Market Cap:</div>
         <div className="text-yellow-400 text-base font-semibold font-mono">{formatNumber(token.marketCap)}</div>
-      </div>
-
-      {/* Progress bar */}
-      {token.progress !== undefined && (
-        <div>
-          <div className="flex justify-between text-xs text-gray-400 mb-1">
-            <span>Progress</span>
-            <span>{token.progress}%</span>
-          </div>
-          <div className="w-full bg-gray-700/50 rounded-full h-2">
-            <div
-              className={`h-2 rounded-full transition-all duration-500 ${
-                token.progress < 30 ? 'bg-blue-500' :
-                token.progress < 90 ? 'bg-gradient-to-r from-yellow-500 to-red-500' :
-                'bg-gradient-to-r from-yellow-500 via-red-500 to-red-600'
-              }`}
-              style={{ width: `${token.progress}%` }}
-            />
-          </div>
         </div>
-      )}
+
+        {/* Progress bar */}
+        {token.progress !== undefined && (
+          <div>
+            <div className="flex justify-between text-xs text-gray-400 mb-1">
+              <span>Progress</span>
+              <span>{token.progress}%</span>
+            </div>
+          <div className="w-full bg-gray-700/50 rounded-full h-2">
+              <div 
+              className={`h-2 rounded-full transition-all duration-500 ${
+                  token.progress < 30 ? 'bg-blue-500' :
+                  token.progress < 90 ? 'bg-gradient-to-r from-yellow-500 to-red-500' :
+                  'bg-gradient-to-r from-yellow-500 via-red-500 to-red-600'
+                }`}
+                style={{ width: `${token.progress}%` }}
+              />
+            </div>
+          </div>
+        )}
     </div>
   );
 };
