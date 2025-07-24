@@ -19,11 +19,7 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: [
-        '@solana/wallet-adapter-react',
-        '@solana/wallet-adapter-react-ui',
-        '@solana/wallet-adapter-phantom'
-      ],
+      // No external packages for wallet adapter; let Vite bundle them
     },
   },
 });
