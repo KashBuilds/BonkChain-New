@@ -1,19 +1,19 @@
-[[redirects]]
-  from = "/api/bonkscreener"
-  to = "/.netlify/functions/bonkscreener"
-  status = 200
+    [build]
+      base = "project"
+      command = "npm run build"
+      publish = "dist"
 
-[[redirects]]
-  from = "/assets/*"
-  to = "/assets/:splat"
-  status = 200
+    [[redirects]]
+      from = "/api/bonkscreener"
+      to = "/.netlify/functions/bonkscreener"
+      status = 200
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+    [[redirects]]
+      from = "/assets/*"
+      to = "/assets/:splat"
+      status = 200
 
-[build]
-  base = "project"
-  command = "npm run build"
-  publish = "dist"
+    [[redirects]]
+      from = "/*"
+      to = "/index.html"
+      status = 200
