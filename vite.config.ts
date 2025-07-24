@@ -19,7 +19,11 @@ export default defineConfig({
   },
   build: {
     rollupOptions: {
-      external: ['@solana/wallet-adapter-react', '@solana/wallet-adapter-react-ui'],
+      external: [
+        '@solana/wallet-adapter-react',
+        '@solana/wallet-adapter-react-ui',
+        '@solana/wallet-adapter-phantom'
+      ],
     },
   },
 });
