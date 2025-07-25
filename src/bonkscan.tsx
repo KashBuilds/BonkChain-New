@@ -1079,6 +1079,14 @@ function App() {
   return (
     <div className="min-h-screen bg-[#101315] flex flex-col items-center">
       <BonkScanHeader />
+      <div className="w-full flex justify-center">
+        <div className="max-w-2xl w-full text-center mt-6 mb-6">
+          <img src="/bonk-logo.png" alt="Bonk Logo" className="w-12 h-12 mx-auto mb-4 rounded-full object-cover" />
+          <p className="text-gray-300 text-lg" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400 }}>
+            BonkScan is a real-time Solana explorer for BonkChain. Track live transactions, view token stats, and explore the latest activity on the BonkChain network.
+          </p>
+        </div>
+      </div>
       {/* Removed DashboardHeaderWithSearch and block search input. Only transaction hash search remains below. */}
       {/* Transaction search bar */}
       <div className="w-full max-w-3xl mx-auto mt-6 mb-4 flex flex-col items-center">

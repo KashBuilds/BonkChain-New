@@ -38,6 +38,14 @@ function App() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
             />
+            <div className="w-full flex justify-center">
+              <div className="max-w-2xl w-full text-center mt-6 mb-6">
+                <img src="/bonk-logo.png" alt="Bonk Logo" className="w-12 h-12 mx-auto mb-4 rounded-full object-cover" />
+                <p className="text-gray-300 text-lg" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400 }}>
+                  BonkSwap is a decentralized exchange for BonkChain. Swap tokens, provide liquidity and manage your portfolio with ease on the Bonk network.
+                </p>
+              </div>
+            </div>
             <main className="container mx-auto px-4 py-8">
               <div className="flex justify-center items-center min-h-[calc(100vh-200px)] w-full">
                 {renderContent()}
