@@ -774,6 +774,12 @@ function App() {
     inputRef.current?.focus();
   }
 
+  // Generate realistic Solana transaction hashes
+  function randomSolanaHash() {
+    const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    return Array.from({ length: 88 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  }
+
   useEffect(() => {
     if (!tokens.length) return;
     let timeout: NodeJS.Timeout;
@@ -799,7 +805,7 @@ function App() {
               amount: amountStr,
               from,
               to,
-              signature: Math.random().toString(36).slice(2, 10),
+              signature: randomSolanaHash(),
               mint: randomToken.mint,
               symbol: randomToken.symbol,
             };
@@ -836,7 +842,7 @@ function App() {
               amount: amountStr,
               from,
               to,
-              signature: Math.random().toString(36).slice(2, 10),
+              signature: randomSolanaHash(),
               mint: randomToken.mint,
               symbol: randomToken.symbol,
             };
@@ -1312,7 +1318,7 @@ function TransactionDetailPage({ transactions }: { transactions: any[] }) {
         </div>
         <div className="mt-4 z-10">
           <a
-            href={`https://solscan.io/tx/${tx.signature || tx.txid}`}
+            href={`https://solscan.io/token/${tx.mint}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-block px-5 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-orange-700 text-white font-semibold shadow hover:from-orange-400 hover:to-orange-600 transition-colors duration-300 text-sm"
