@@ -86,7 +86,7 @@ const BonkTokenCard: React.FC<BonkTokenCardProps> = ({ token }) => {
           {label}
         </div>
         <div className="text-xs text-gray-400 mt-1">Launched {token.createdAt ? getRelativeTime(token.createdAt) : 'N/A'}</div>
-        <div className="text-xs text-orange-400 font-bold mt-1">MC: ${token.marketCap ? token.marketCap.toLocaleString() : 'N/A'}</div>
+        <div className="text-xs text-orange-400 font-bold mt-1">MC: ${token.marketCap ? formatCompactNumber(token.marketCap) : 'N/A'}</div>
       </div>
     </div>
   );

@@ -80,6 +80,16 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [referralOpen, setReferralOpen] = useState(false);
 
+  // Format compact numbers (e.g., 27959 -> 28K)
+  function formatCompactNumber(num: number): string {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(0) + 'K';
+    }
+    return num.toString();
+  }
+
   const loadTokens = async () => {
     try {
       const response = await fetch('https://launch-mint-v1.raydium.io/get/list?platformId=FfYek5vEz23cMkWsdJwG2oa6EphsvXSHrGpdALN4g6W1,BuM6KDpWiTcxvrpXywWFiw45R2RNH8WURdvqoTDV1BW4&sort=lastTrade&size=100&mintType=default&includeNsfw=false');
@@ -143,7 +153,10 @@ function App() {
                                       <div className="text-lg font-semibold text-orange-400">${featuredToken.symbol}</div>
                                     </div>
                                   </div>
-                                  <div className="mt-2 text-sm text-gray-300">Market Cap: <span className="font-bold text-orange-400">${featuredToken.marketCap.toLocaleString()}</span></div>
+                                  <div className="mt-2 text-sm text-gray-300">
+                                    <div className="text-xs text-gray-400 mb-1">Market Cap</div>
+                                    <div className="text-lg font-bold text-orange-400">${featuredToken.marketCap ? formatCompactNumber(featuredToken.marketCap) : 'N/A'}</div>
+                                  </div>
                                 </a>
                               ) : (
                                 <div className="text-gray-400 text-sm">No token data available.</div>

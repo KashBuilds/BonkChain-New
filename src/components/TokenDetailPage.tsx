@@ -198,6 +198,16 @@ const TokenDetailPage: React.FC = () => {
   }
   const randomTransactions = [randomTx(), randomTx()];
 
+  // Format compact numbers (e.g., 27959 -> 28K)
+  function formatCompactNumber(num: number): string {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(0) + 'K';
+    }
+    return num.toString();
+  }
+
   return (
     <div className="min-h-screen bg-custom-dark text-white">
       <Header />
@@ -256,8 +266,8 @@ const TokenDetailPage: React.FC = () => {
               {copied && <span className="text-green-400 text-xs">Copied!</span>}
             </div>
             <div className="flex gap-2 mt-2">
-              <a href={`https://letsbonk.fun/token/${token.mint}`} target="_blank" rel="noopener noreferrer" className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-bold text-center transition">Trade on letsBONK</a>
-              <a href={`https://solscan.io/token/${token.mint}`} target="_blank" rel="noopener noreferrer" className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded-lg text-white font-bold text-center transition">View on Solscan</a>
+              <a href={`/bonkscan?token=${token.mint}`} target="_blank" rel="noopener noreferrer" className="flex-1 px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-white font-bold text-center transition">View on BonkScan</a>
+              <a href={`https://letsbonk.fun/token/${token.mint}`} target="_blank" rel="noopener noreferrer" className="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-800 rounded-lg text-white font-bold text-center transition">View on letsBONK</a>
             </div>
           </div>
 
@@ -301,7 +311,7 @@ const TokenDetailPage: React.FC = () => {
               }
             `}</style>
             <div className="flex flex-wrap gap-8 text-sm">
-              <div><span className="font-bold text-white">${marketCap.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span> Market Cap</div>
+              <div><span className="font-bold text-white">${token.marketCap ? formatCompactNumber(token.marketCap) : 'N/A'}</span> Market Cap</div>
               <div><span className="font-bold text-white">${
                 (token.volume24h ?? token.volumeU ?? token.volumeA ?? 0).toLocaleString(undefined, { maximumFractionDigits: 0 })
               }</span> 24h Volume</div>
@@ -370,7 +380,7 @@ const TokenDetailPage: React.FC = () => {
               <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">Bonded Time:</span> <span className="text-white">{formatDate(token.bondedAt)}</span></div>
             )}
             <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">Target:</span> <span className="text-white">{BOND_TARGET.toLocaleString()} SOL</span></div>
-            <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">Current:</span> <span className="text-white">${marketCap.toLocaleString()}</span></div>
+            <div className="flex items-center gap-2 text-sm"><span className="text-gray-400">Current:</span> <span className="text-white">${token.marketCap ? formatCompactNumber(token.marketCap) : 'N/A'}</span></div>
           </div>
         </div>
       </div>
