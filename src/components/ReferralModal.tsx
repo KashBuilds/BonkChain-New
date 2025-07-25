@@ -22,7 +22,7 @@ const ReferralModal: React.FC<ReferralModalProps> = ({ open, onClose }) => {
         {/* Close button */}
         <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-white text-2xl font-bold focus:outline-none">×</button>
         {/* Bonk logo */}
-        <img src="/bonk-logo.png" alt="Bonk Logo" className="w-12 h-12 mb-2" />
+        <img src="/bonk-logo.png" alt="Bonk Logo" className="w-12 h-12 mb-2 rounded-full object-cover" />
         {/* Title */}
         <h2 className="text-3xl font-bold mb-2 text-white text-center w-full">Invite Friends, Earn Fragments</h2>
         {/* Description */}

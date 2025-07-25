@@ -14,6 +14,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
   const { setVisible } = useWalletModal();
   const connected = wallet.connected;
   const publicKey = wallet.publicKey;
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
 
   // Auto-connect when wallet is selected
   React.useEffect(() => {
@@ -54,45 +55,45 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
 
   return (
     <header className="w-full bg-custom-dark sticky top-0 z-50">
-      <div className="flex items-center justify-between h-16 px-4 relative">
+      <div className="flex items-center justify-between p-6">
         {/* Logo and Main Navigation */}
         <div className="flex items-center space-x-8">
           <div className="flex items-center space-x-2">
-            <img src="/bonk-logo.png" alt="Bonk Logo" className="w-8 h-8" />
+            <img src="/bonk-logo.png" alt="Bonk Logo" className="w-8 h-8 rounded-full object-cover" />
             <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
               BonkSwap
             </span>
           </div>
 
           {/* Main Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-2 ml-8">
             <button 
               onClick={() => handleNavigation('BonkChain')}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkChain
             </button>
             <button 
               onClick={() => handleNavigation('BonkScan')}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/bonkscan' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkScan
             </button>
             <button 
               onClick={() => handleNavigation('BonkSwap')}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/bonkswap' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkSwap
             </button>
             <button 
               onClick={() => handleNavigation('BonkStake')}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/bonkstake' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkStake
             </button>
             <button 
               onClick={() => handleNavigation('Twitter')}
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className="px-3 py-2 rounded-lg text-sm font-light text-gray-300 hover:text-orange-400 transition-all duration-200"
             >
               Twitter
             </button>

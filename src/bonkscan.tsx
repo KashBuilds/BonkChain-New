@@ -17,20 +17,21 @@ import {
   X,
   Search as SearchIcon
 } from 'lucide-react';
-import { Line } from 'react-chartjs-2';
+import { Line, Bar } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
   PointElement,
   LineElement,
+  BarElement,
   Tooltip,
   Filler,
   Legend,
 } from 'chart.js';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
 import type { ChartOptions } from 'chart.js';
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Filler, Legend);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Filler, Legend);
 
 interface MetricCardProps {
   title: string;
@@ -330,7 +331,7 @@ const Sidebar: React.FC<{ onShowAllTransactions: () => void; onShowTokenTransfer
   <aside className="hidden md:flex flex-col items-center bg-[#101624] border-r border-[#232a3a] min-h-screen w-20 py-6 gap-6">
     {/* Logo */}
     <div className="mb-8">
-      <img src="/bonk-logo.png" alt="BonkScan Logo" className="w-12 h-12 rounded-full border-2 border-orange-400 shadow" />
+      <img src="/bonk-logo.png" alt="BonkScan Logo" className="w-12 h-12 rounded-full object-cover border-2 border-orange-400 shadow" />
     </div>
     {/* Menu */}
     <nav className="flex flex-col gap-4 w-full items-center">
@@ -594,7 +595,953 @@ const ChartAndStatsPage: React.FC<{ onBack: () => void }> = ({ onBack }) => (
   </div>
 );
 
-function BlockDetailsPage({ block, onBack }: { block: any, onBack: () => void }) {
+// Add DashboardHeader component
+interface DashboardHeaderWithSearchProps {
+  blockSearch: string;
+  handleBlockInput: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleBlockKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
+  handleClearSearch: () => void;
+  blockResults: any[];
+  handleSelectBlock: (num: number) => void;
+  showDropdown: boolean;
+  setShowDropdown: (show: boolean) => void;
+  inputRef: React.RefObject<HTMLInputElement>;
+}
+function DashboardHeaderWithSearch() {
+  return null;
+}
+
+// Fade-in animation CSS
+const fadeInStyle = `
+@keyframes fadeInRow {
+  from { background: #ff990033; }
+  to { background: transparent; }
+}
+.animate-fadeInRow {
+  animation: fadeInRow 1s ease;
+}
+`;
+
+// BonkScan header with logo, word, and nav links (left-aligned)
+function BonkScanHeader() {
+  const navigate = useNavigate();
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+  return (
+    <div className="flex items-center w-full px-8 py-4 gap-8">
+      <div className="flex items-center gap-8 min-w-0">
+        <div className="flex items-center space-x-3">
+          <img src="/bonk-logo.png" alt="Bonk Logo" className="w-8 h-8 rounded-full object-cover" />
+          <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+            BonkScan
+          </span>
+        </div>
+        <nav className="flex items-center gap-2 ml-8">
+          <a href="/" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkChain</a>
+          <a href="/bonkscan" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkscan' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkScan</a>
+          <button
+            onClick={() => navigate('/bonkswap')}
+            className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkswap' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'} focus:outline-none`}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          >
+            BonkSwap
+          </button>
+          <a href="/bonkstake" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkstake' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkStake</a>
+          <a href="https://x.com/bonkchainfun" target="_blank" rel="noopener noreferrer" className="text-sm font-light px-3 py-2 rounded-lg text-white hover:text-bonk-orange transition-all duration-200">Twitter</a>
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+// Simple header/nav bar for BonkChain
+function BonkHeader() {
+  const navigate = useNavigate();
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
+  return (
+    <div className="flex items-center w-full px-8 py-4 gap-8">
+      <div className="flex items-center gap-8 flex-1 min-w-0">
+        <img src="/bonk-logo.png" alt="Bonk Logo" className="w-9 h-9 rounded-full object-cover" />
+        <nav className="flex items-center gap-2 ml-8">
+          <a href="/" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkChain</a>
+          <a href="/bonkscan" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkscan' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkScan</a>
+          <button
+            onClick={() => navigate('/bonkswap')}
+            className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkswap' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'} focus:outline-none`}
+            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
+          >
+            BonkSwap
+          </button>
+          <a href="/bonkstake" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkstake' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkStake</a>
+          <a href="https://x.com/bonkchainfun" target="_blank" rel="noopener noreferrer" className="text-sm font-light px-3 py-2 rounded-lg text-white hover:text-bonk-orange transition-all duration-200">Twitter</a>
+        </nav>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const { txid = undefined } = useParams();
+  // --- Stat Card Data for Solana Explorer style ---
+  const supply = 605600000;
+  const circulating = 537900000;
+  const circulatingPercent = ((circulating / supply) * 100).toFixed(1);
+  const activeStake = 400000000;
+  const delinquentStake = 0.2;
+  const { tokens } = useTokens();
+  // --- End new data ---
+
+  // Updated values from user
+  const coinSupply = 48821087841;
+  const difficulty = 26547586.6949971;
+  const priceUsd = 0.00000218;
+  const marketCapUsd = 106429.97149338;
+
+  // If you want to show these as stat cards at the top:
+  const metrics = [
+    {
+      title: 'Coin Supply (BONC)',
+      value: coinSupply.toLocaleString(),
+      unit: '',
+    },
+    {
+      title: 'Price (USD)',
+      value: `$${priceUsd.toFixed(8)}`,
+      unit: '',
+    },
+    {
+      title: 'Difficulty',
+      value: difficulty.toLocaleString(undefined, { maximumFractionDigits: 6 }),
+      unit: '',
+    },
+  ];
+
+  const [transactions, setTransactions] = useState<LocalTransaction[]>([]);
+  const [newSignatures, setNewSignatures] = useState<string[]>([]);
+  const [showAllTransactions, setShowAllTransactions] = useState(false);
+  const [showTokenTransfers, setShowTokenTransfers] = useState(false);
+  const [showChartAndStats, setShowChartAndStats] = useState(false);
+  const { blocks: latestBlocks, allBlocks } = useFakeBlocksWithHistory(5);
+  const [blockSearch, setBlockSearch] = useState("");
+  const [selectedBlock, setSelectedBlock] = useState<any | null>(null);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [latestTxid, setLatestTxid] = useState<string | null>(null);
+
+  // Filter blocks for dropdown (unique results only)
+  const blockResults = blockSearch.length > 0
+    ? Array.from(new Set(
+        allBlocks
+          .filter(b => b.number.toString().includes(blockSearch))
+          .map(b => b.number)
+      ))
+      .slice(0, 5)
+      .map(num => allBlocks.find(b => b.number === num))
+      .filter(Boolean)
+    : [];
+
+  // Handle input change
+  function handleBlockInput(e: React.ChangeEvent<HTMLInputElement>) {
+    setBlockSearch(e.target.value);
+    setShowDropdown(true);
+  }
+
+  // Handle dropdown selection
+  function handleSelectBlock(num: number) {
+    const found = allBlocks.find(b => b.number === num);
+    if (found) setSelectedBlock(found);
+    setBlockSearch("");
+    setShowDropdown(false);
+  }
+
+  // Handle Enter key
+  function handleBlockKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter' && blockResults.length > 0) {
+      if (blockResults[0] && blockResults[0].number !== undefined) {
+        handleSelectBlock(blockResults[0].number);
+      }
+    }
+    if (e.key === 'Escape') {
+      setShowDropdown(false);
+    }
+  }
+
+  // Handle clear
+  function handleClearSearch() {
+    setBlockSearch("");
+    setShowDropdown(false);
+    inputRef.current?.focus();
+  }
+
+  useEffect(() => {
+    if (!tokens.length) return;
+    let timeout: NodeJS.Timeout;
+    let extraTimeout: NodeJS.Timeout;
+    function addTransactions() {
+      setTransactions(prev => {
+        const burst = Math.random() < 0.35; // 35% chance for a burst
+        const count = burst ? Math.floor(Math.random() * 6) + 3 : 1; // 3-8 or 1
+        const newTxs: LocalTransaction[] = Array.from({ length: count })
+          .map(() => {
+            const randomToken = tokens[Math.floor(Math.random() * tokens.length)];
+            if (!randomToken) return null;
+            const type = Math.random() > 0.5 ? 'buy' : 'sell';
+            const solAmount = (Math.random() * 9.8 + 0.2).toFixed(2); // 0.2 - 10 SOL
+            const price = randomToken.price || 0.00002;
+            const bonkAmount = price ? (Number(solAmount) / price) : 0;
+            const amountStr = bonkAmount > 1_000_000 ? (bonkAmount / 1_000_000).toFixed(2) + 'M ' + randomToken.symbol : bonkAmount.toFixed(0) + ' ' + randomToken.symbol;
+            const from = randomWallet();
+            const to = randomWallet();
+            return {
+              type,
+              time: 'just now',
+              amount: amountStr,
+              from,
+              to,
+              signature: Math.random().toString(36).slice(2, 10),
+              mint: randomToken.mint,
+              symbol: randomToken.symbol,
+            };
+          })
+          .filter((tx): tx is LocalTransaction => !!tx);
+        // Track new signatures for pop animation
+        setNewSignatures(newTxs.map(tx => tx.signature));
+        return [
+          ...newTxs,
+          ...prev.slice(0, 100 - newTxs.length),
+        ];
+      });
+      // Next interval: random between 200ms and 1200ms
+      const next = Math.floor(Math.random() * 1000) + 200;
+      timeout = setTimeout(addTransactions, next);
+    }
+    function addExtraFakeTransactions() {
+      setTransactions(prev => {
+        const count = Math.floor(Math.random() * 2) + 1; // 1-2 extra
+        const newTxs: LocalTransaction[] = Array.from({ length: count })
+          .map(() => {
+            const randomToken = tokens[Math.floor(Math.random() * tokens.length)];
+            if (!randomToken) return null;
+            const type = Math.random() > 0.5 ? 'buy' : 'sell';
+            const solAmount = (Math.random() * 9.8 + 0.2).toFixed(2);
+            const price = randomToken.price || 0.00002;
+            const bonkAmount = price ? (Number(solAmount) / price) : 0;
+            const amountStr = bonkAmount > 1_000_000 ? (bonkAmount / 1_000_000).toFixed(2) + 'M ' + randomToken.symbol : bonkAmount.toFixed(0) + ' ' + randomToken.symbol;
+            const from = randomWallet();
+            const to = randomWallet();
+            return {
+              type,
+              time: 'just now',
+              amount: amountStr,
+              from,
+              to,
+              signature: Math.random().toString(36).slice(2, 10),
+              mint: randomToken.mint,
+              symbol: randomToken.symbol,
+            };
+          })
+          .filter((tx): tx is LocalTransaction => !!tx);
+        setNewSignatures(newTxs.map(tx => tx.signature));
+        return [
+          ...newTxs,
+          ...prev.slice(0, 100 - newTxs.length),
+        ];
+      });
+      // Add extra fakes every 2-4 seconds
+      extraTimeout = setTimeout(addExtraFakeTransactions, Math.floor(Math.random() * 2000) + 2000);
+    }
+    addTransactions();
+    addExtraFakeTransactions();
+    return () => { clearTimeout(timeout); clearTimeout(extraTimeout); };
+  }, [tokens]);
+
+  // Clear newSignatures after animation
+  useEffect(() => {
+    if (newSignatures.length === 0) return;
+    const timeout = setTimeout(() => setNewSignatures([]), 500);
+    return () => clearTimeout(timeout);
+  }, [newSignatures]);
+
+  function randomWallet() {
+    const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+    return (
+      Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('') +
+      '...' +
+      Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
+    );
+  }
+
+  function getRelativeTime(dateValue: number): string {
+    const now = Date.now();
+    const diff = Math.max(0, now - dateValue);
+    const mins = Math.floor(diff / 60000);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
+
+  function formatBonkAmount(amount: number): string {
+    if (amount >= 1_000_000_000) return (amount / 1_000_000_000).toFixed(2) + 'B BONK';
+    if (amount >= 1_000_000) return (amount / 1_000_000).toFixed(2) + 'M BONK';
+    if (amount >= 1_000) return (amount / 1_000).toFixed(2) + 'K BONK';
+    return amount + ' BONK';
+  }
+
+  function shorten(addr: string) {
+    if (!addr) return '';
+    return addr.slice(0, 3) + '...' + addr.slice(-3);
+  }
+
+  // Custom fast-incrementing transaction count and fixed TPS
+  const [customTxCount, setCustomTxCount] = useState(430630211548);
+  const TPS = 4032;
+  useEffect(() => {
+    // Increase by a random amount between 10 and 100 every 100ms
+    const interval = setInterval(() => {
+      setCustomTxCount(prev => prev + Math.floor(Math.random() * 91) + 10);
+    }, 100);
+    return () => clearInterval(interval);
+  }, []);
+  // Use customTxCount for transaction count everywhere
+  const stats = {
+    ...useRealisticStats(),
+    totalTx: customTxCount,
+  };
+  // txStats for the UI
+  const txStats = [
+    { label: 'Transaction count', value: customTxCount.toLocaleString() },
+    { label: 'Transactions per second (TPS)', value: TPS.toLocaleString() },
+  ];
+
+  // --- New: Cluster and Transaction Stats Data ---
+  const clusterStats = [
+    { label: 'Slot', value: latestBlocks[0]?.number.toLocaleString(), copy: latestBlocks[0]?.number.toString() },
+    { label: 'Block height', value: latestBlocks[0]?.number.toLocaleString(), copy: latestBlocks[0]?.number.toString() },
+    { label: 'Cluster time', value: new Date(latestBlocks[0]?.createdAt).toUTCString() },
+    { label: 'Slot time (1min avg)', value: `${(Math.random() * 100 + 350).toFixed(0)}ms` },
+    { label: 'Slot time (1hr avg)', value: `${(Math.random() * 100 + 350).toFixed(0)}ms` },
+    { label: 'Epoch', value: (820 + Math.floor(Math.random() * 10)).toString(), copy: (820 + Math.floor(Math.random() * 10)).toString() },
+    { label: 'Epoch progress', value: `${(Math.random() * 100).toFixed(1)}%` },
+    { label: 'Epoch time remaining (approx.)', value: `~${Math.floor(Math.random() * 6)}h ${Math.floor(Math.random() * 60)}m ${Math.floor(Math.random() * 60)}s` },
+  ];
+
+  // TPS bar chart data, responsive to range
+  const [tpsRange, setTpsRange] = useState<'30m' | '2h' | '6h'>('30m');
+  const getBarCount = (range: string) => (range === '30m' ? 30 : range === '2h' ? 60 : 120);
+  const [tpsBarData, setTpsBarData] = useState<number[]>(Array.from({ length: getBarCount('30m') }, () => 2000 + Math.floor(Math.random() * 200)));
+
+  // Animate the bar chart by shifting in new data every second (gentle random walk)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTpsBarData(prev => {
+        const last = prev[prev.length - 1] || 2000;
+        let nextVal = last + Math.floor(Math.random() * 81) - 40;
+        nextVal = Math.max(1200, Math.min(4000, nextVal));
+        const next = prev.slice(1);
+        next.push(nextVal);
+        return next;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // When range changes, reset the bar data with new mock data
+  useEffect(() => {
+    setTpsBarData(Array.from({ length: getBarCount(tpsRange) }, () => 2000 + Math.floor(Math.random() * 200)));
+  }, [tpsRange]);
+
+  const tpsBarLabels = Array.from({ length: tpsBarData.length }, (_, i) => i + 1);
+  const tpsBarChartData = {
+    labels: tpsBarLabels,
+    datasets: [
+      {
+        label: 'Transactions this moment',
+        data: tpsBarData,
+        backgroundColor: '#ff9900',
+        borderColor: '#ff9900',
+      },
+    ],
+  };
+
+  const tpsBarChartOptions = {
+    responsive: true,
+    animation: { duration: 500 },
+    plugins: {
+      legend: { display: false },
+      tooltip: { enabled: true },
+    },
+    maintainAspectRatio: false,
+    scales: {
+      x: {
+        display: false,
+        grid: { display: false },
+      },
+      y: {
+        display: true,
+        grid: { color: '#232a3a' },
+        ticks: {
+          color: '#b0b8c1',
+          font: { family: 'Rubik, sans-serif', size: 13 },
+          stepSize: 500,
+        },
+      },
+    },
+  };
+
+  // Raydium poolId for demo (replace with dynamic if needed)
+  const [raydiumTrades, setRaydiumTrades] = useState<any[]>([]);
+  const [tradeSearch, setTradeSearch] = useState('');
+  const [poolIds, setPoolIds] = useState<string[]>([]);
+  const [raydiumTokens, setRaydiumTokens] = useState<any[]>([]);
+  const [mergedTransactions, setMergedTransactions] = useState<LocalTransaction[]>([]);
+  const navigate = useNavigate();
+
+  // Fetch all tokens and extract poolIds
+  useEffect(() => {
+    fetch('https://launch-mint-v1.raydium.io/get/list?platformId=FfYek5vEz23cMkWsdJwG2oa6EphsvXSHrGpdALN4g6W1,BuM6KDpWiTcxvrpXywWFiw45R2RNH8WURdvqoTDV1BW4&sort=lastTrade&size=100&mintType=default&includeNsfw=false')
+      .then(res => res.json())
+      .then(data => {
+        const rows = data.data && Array.isArray(data.data.rows) ? data.data.rows : [];
+        setRaydiumTokens(rows);
+        const ids = rows.map((t: any) => t.poolId).filter(Boolean);
+        setPoolIds(Array.from(new Set(ids)));
+      });
+  }, []);
+
+  // Fetch trades for all poolIds every 13 seconds
+  useEffect(() => {
+    if (!poolIds.length) return;
+    let interval: NodeJS.Timeout;
+    const fetchAllTrades = async () => {
+      const allTrades = await Promise.all(
+        poolIds.map(poolId =>
+          fetch(`https://launch-history-v1.raydium.io/trade?poolId=${poolId}&limit=20`)
+            .then(res => res.json())
+            .then(data => (data.data && Array.isArray(data.data.rows) ? data.data.rows : []))
+        )
+      );
+      const trades = allTrades.flat().sort((a, b) => b.blockTime - a.blockTime);
+      setRaydiumTrades(trades);
+      if (trades.length > 0 && trades[0].txid !== latestTxid) {
+        setLatestTxid(trades[0].txid);
+      }
+    };
+    fetchAllTrades();
+    interval = setInterval(fetchAllTrades, 13000);
+    return () => clearInterval(interval);
+  }, [poolIds.join(','), latestTxid]);
+
+  // Merge Raydium trades with fake transactions for dashboard display
+  useEffect(() => {
+    // Convert Raydium trades to LocalTransaction format
+    const raydiumAsLocal: LocalTransaction[] = (raydiumTrades || []).map((tx: any) => ({
+      type: tx.type === 'buy' || tx.type === 'sell' ? tx.type : 'transfer',
+      time: tx.blockTime ? new Date(tx.blockTime * 1000).toLocaleTimeString() : 'recent',
+      amount: tx.amountIn && tx.symbol ? `${tx.amountIn} ${tx.symbol}` : (tx.amountIn || 'N/A'),
+      from: tx.owner ? tx.owner.slice(0, 4) + '...' + tx.owner.slice(-4) : 'unknown',
+      to: '',
+      signature: tx.txid,
+      mint: tx.mint || '',
+      symbol: tx.symbol || '',
+    }));
+    // Deduplicate by signature (txid)
+    const all = [...raydiumAsLocal, ...transactions];
+    const seen = new Set<string>();
+    const deduped = all.filter(tx => {
+      if (seen.has(tx.signature)) return false;
+      seen.add(tx.signature);
+      return true;
+    });
+    // Sort by most recent (Raydium trades have blockTime, fakes have 'just now')
+    deduped.sort((a, b) => {
+      // Prefer Raydium blockTime if available, else fallback to fake
+      const aTime = (raydiumTrades.find(t => t.txid === a.signature)?.blockTime || 0) || (a.time === 'just now' ? Date.now() : 0);
+      const bTime = (raydiumTrades.find(t => t.txid === b.signature)?.blockTime || 0) || (b.time === 'just now' ? Date.now() : 0);
+      return bTime - aTime;
+    });
+    setMergedTransactions(deduped);
+  }, [raydiumTrades, transactions]);
+
+  // Filter trades by search
+  const filteredTrades = Array.isArray(raydiumTrades)
+    ? (tradeSearch
+        ? raydiumTrades.filter(tx => tx.txid && tx.txid.toLowerCase().includes(tradeSearch.toLowerCase()))
+        : raydiumTrades)
+    : [];
+
+  if (txid) {
+    return <TransactionDetailPage transactions={mergedTransactions} />;
+  }
+
+  return (
+    <div className="min-h-screen bg-[#101315] flex flex-col items-center">
+      <BonkScanHeader />
+      {/* Removed DashboardHeaderWithSearch and block search input. Only transaction hash search remains below. */}
+      {/* Transaction search bar */}
+      <div className="w-full max-w-3xl mx-auto mt-6 mb-4 flex flex-col items-center">
+        <input
+          className="w-full px-4 py-2 rounded border border-gray-700 bg-gray-900 text-white text-sm"
+          placeholder="Search by transaction hash..."
+          value={tradeSearch}
+          onChange={e => setTradeSearch(e.target.value)}
+          onKeyDown={e => {
+            if (e.key === 'Enter' && tradeSearch.trim()) {
+              navigate(`/bonkscan/tx/${tradeSearch.trim()}`);
+            }
+          }}
+        />
+      </div>
+      {/* Main content columns start here */}
+      {selectedBlock ? (
+        <BlockDetailsPage block={selectedBlock} onBack={() => setSelectedBlock(null)} />
+      ) : (
+        <>
+          <div className="w-full max-w-7xl mx-auto flex flex-col items-center px-4">
+            {/* Stat Cards Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mt-8 mb-4">
+              {metrics.map((m, i) => (
+                <div
+                  key={i}
+                  className="card w-full px-8 py-7 flex flex-col items-start justify-center rounded-xl shadow-sm bg-[#101624] border border-[#232a3a]"
+                  style={{ minHeight: 120 }}
+                >
+                  <div className="text-base font-medium mb-2 tracking-wide text-orange-400" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 500, letterSpacing: '0.01em' }}>{m.title}</div>
+                  <div className="text-4xl text-orange-400 mb-1" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400, letterSpacing: '-0.01em' }}>
+                    {m.value}
+                    {m.unit && <span className="text-lg text-orange-400 ml-1">{m.unit}</span>}
+                  </div>
+                </div>
+              ))}
+            </div>
+            {/* Main Grid Row */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-6">
+              {/* Live Cluster Stats */}
+              <div className="card w-full px-0 py-0 overflow-hidden rounded-xl shadow-sm">
+                <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Live Cluster Stats</div>
+                <table className="w-full text-left text-base">
+                  <tbody>
+                    {clusterStats.map((row, i) => (
+                      <tr key={i} className="table-row group hover:bg-[#232a3a]/30 transition">
+                        <td className="py-3 px-6 text-gray-400 font-medium w-1/2 flex items-center gap-2">{row.label}{row.copy && (<button onClick={() => copyToClipboard(row.copy!)} className="ml-1 text-bonk-orange opacity-70 hover:opacity-100" title="Copy"><Clipboard size={16} /></button>)}</td>
+                        <td className="py-3 px-6 text-bonk-orange font-sans font-bold text-right">{row.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* Live Transaction Stats */}
+              <div className="card w-full px-0 py-0 overflow-hidden rounded-xl shadow-sm">
+                <div className="px-6 pt-6 pb-2">
+                  <div className="text-base font-medium mb-4 tracking-wide text-orange-400" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 500, letterSpacing: '0.01em' }}>
+                    Live Transaction Stats
+                  </div>
+                  <div className="flex flex-col gap-2 mb-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-base" style={{ fontFamily: 'Rubik, sans-serif' }}>Transaction count</span>
+                      <span className="text-3xl text-orange-400" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400 }}>{customTxCount.toLocaleString()}</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-gray-400 text-base" style={{ fontFamily: 'Rubik, sans-serif' }}>Transactions per second (TPS)</span>
+                      <span className="text-3xl text-orange-400" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400 }}>{TPS.toLocaleString()}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-white text-base font-medium" style={{ fontFamily: 'Rubik, sans-serif' }}>TPS history</div>
+                    <div className="flex gap-2">
+                      <button className={`px-3 py-1 rounded bg-[#181c24] font-medium text-xs border border-[#232a3a] ${tpsRange==='30m'?'text-white':'text-gray-400'}`} onClick={()=>setTpsRange('30m')}>30m</button>
+                      <button className={`px-3 py-1 rounded bg-[#181c24] font-medium text-xs border border-[#232a3a] ${tpsRange==='2h'?'text-white':'text-gray-400'}`} onClick={()=>setTpsRange('2h')}>2h</button>
+                      <button className={`px-3 py-1 rounded bg-[#181c24] font-medium text-xs border border-[#232a3a] ${tpsRange==='6h'?'text-white':'text-gray-400'}`} onClick={()=>setTpsRange('6h')}>6h</button>
+                    </div>
+                  </div>
+                  <div className="h-[400px] w-full">
+                    <Bar
+                      data={tpsBarChartData}
+                      options={tpsBarChartOptions}
+                      height={400}
+                    />
+                  </div>
+                  <div className="text-sm text-gray-400 mt-4" style={{ fontFamily: 'Rubik, sans-serif' }}>
+                    For transaction confirmation time statistics, please visit
+                    {' '}<a href="https://validators.app" className="text-[#14f1c6] underline" target="_blank" rel="noopener noreferrer">validators.app</a>
+                    {' '}or{' '}
+                    <a href="https://solscan.io" className="text-[#14f1c6] underline" target="_blank" rel="noopener noreferrer">solscan.io</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* --- Insert LatestTransactionsDashboard here --- */}
+            <div className="w-full max-w-4xl mx-auto mt-8 mb-8">
+              <LatestTransactionsDashboard
+                onShowAllTransactions={() => setShowAllTransactions(true)}
+                transactions={mergedTransactions}
+                newSignatures={newSignatures}
+              />
+            </div>
+            {/* Footer Card: Kickstart your development journey */}
+            <div className="card w-full mt-2 mb-8 px-0 py-0 overflow-hidden rounded-xl shadow-sm">
+              <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Kickstart your development journey on BonkChain</div>
+              <div className="flex flex-row gap-4 px-6 py-4 items-start">
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                      </svg>
+                </div>
+                </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-blue-400 transition-colors">Setup Your BonkChain Environment</div>
+                  <div className="text-gray-400 text-sm">Install CLI tools, configure RPC endpoints, and deploy your first smart contract</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-green-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-green-400 transition-colors">Quick Start Guide</div>
+                  <div className="text-gray-400 text-sm">Learn account creation, token transfers, and basic transaction structure</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-orange-400 transition-colors">BonkChain Developer Bootcamp</div>
+                  <div className="text-gray-400 text-sm">Master advanced concepts: DEX development, yield farming, and DeFi protocols</div>
+                </div>
+                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
+                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-purple-500/20 transition-shadow">
+                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
+                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div className="text-white font-semibold text-base mt-2 group-hover:text-purple-400 transition-colors">60 Days of BonkChain</div>
+                  <div className="text-gray-400 text-sm">Daily challenges: build a DEX, create NFTs, and deploy complex DeFi protocols</div>
+                </div>
+              </div>
+              <div className="px-6 pb-4">
+                <div className="flex items-center justify-between text-sm text-gray-400">
+                  <span>Live Network Status</span>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    <span className="text-green-400">Online</span>
+                </div>
+              </div>
+                <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-ping"></div>
+                    <span>Blocks: 2,847,392</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                    <span>TPS: 65,432</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                    <span>Validators: 1,847</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+      {/* Transaction Detail Route */}
+      <Routes>
+        <Route path="/tx/:txid" element={<TransactionDetailPage transactions={mergedTransactions} />} />
+      </Routes>
+      {/* Fade-in animation style for new trades */}
+      <style>{fadeInStyle}</style>
+    </div>
+  );
+}
+
+// Transaction Detail Page
+function TransactionDetailPage({ transactions }: { transactions: any[] }) {
+  const { txid } = useParams();
+  const navigate = useNavigate();
+  // Support both Raydium and fake txs (signature or txid)
+  const tx = transactions.find(t => t.signature === txid || t.txid === txid);
+  if (!tx) return <div className="text-center py-8 text-white">Transaction not found.</div>;
+  return (
+    <div className="max-w-xl mx-auto py-16 fade-in-slow">
+      <button
+        onClick={() => navigate('/bonkscan')}
+        className="mb-6 px-4 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-orange-700 text-white font-medium shadow hover:from-orange-400 hover:to-orange-600 transition-colors duration-300 text-sm"
+        style={{ fontFamily: 'Rubik, sans-serif', letterSpacing: '0.01em' }}
+      >
+        ← Back to BonkScan
+      </button>
+      <h2 className="text-3xl mb-6 text-white tracking-tight" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 700 }}>Transaction Details</h2>
+      <div className="relative rounded-2xl shadow-2xl bg-[#0c1017] border border-[#232a3a] px-8 py-8 flex flex-col gap-4" style={{ fontFamily: 'Inter, sans-serif' }}>
+        {/* Geometric accent (triangle) */}
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none" className="absolute right-0 top-0 opacity-10" style={{zIndex:0}}><polygon points="80,0 80,80 0,80" fill="#fff" /></svg>
+        <div className="flex flex-col gap-2 z-10">
+          <div><b className="text-gray-300">Tx Hash:</b> <span className="font-mono text-orange-300 break-all" style={{ fontFamily: 'Space Mono, monospace' }}>{tx.signature || tx.txid}</span></div>
+          {tx.blockTime && <div><b className="text-gray-300">Time:</b> <span className="text-white">{new Date(tx.blockTime * 1000).toLocaleString()}</span></div>}
+          {tx.time && !tx.blockTime && <div><b className="text-gray-300">Time:</b> <span className="text-white">{tx.time}</span></div>}
+          <div><b className="text-gray-300">Type:</b> <span className="capitalize text-white">{tx.type}</span></div>
+          {tx.amountIn && <div><b className="text-gray-300">Amount In:</b> <span className="text-white">{tx.amountIn}</span></div>}
+          {tx.amountOut && <div><b className="text-gray-300">Amount Out:</b> <span className="text-white">{tx.amountOut}</span></div>}
+          {tx.amount && <div><b className="text-gray-300">Amount:</b> <span className="text-white">{tx.amount}</span></div>}
+          {tx.price && <div><b className="text-gray-300">Price:</b> <span className="text-white">{tx.price}</span></div>}
+          {tx.owner && <div><b className="text-gray-300">User:</b> <span className="font-mono text-white" style={{ fontFamily: 'Space Mono, monospace' }}>{tx.owner}</span></div>}
+          {tx.from && <div><b className="text-gray-300">From:</b> <span className="font-mono text-white" style={{ fontFamily: 'Space Mono, monospace' }}>{tx.from}</span></div>}
+          {tx.to && <div><b className="text-gray-300">To:</b> <span className="font-mono text-white" style={{ fontFamily: 'Space Mono, monospace' }}>{tx.to}</span></div>}
+          {tx.fee && <div><b className="text-gray-300">Fee:</b> <span className="text-white">{tx.fee}</span></div>}
+          {tx.symbol && <div><b className="text-gray-300">Token:</b> <span className="text-white">{tx.symbol}</span></div>}
+          {tx.mint && <div><b className="text-gray-300">Mint:</b> <span className="font-mono text-white" style={{ fontFamily: 'Space Mono, monospace' }}>{tx.mint}</span></div>}
+        </div>
+        <div className="mt-4 z-10">
+          <a
+            href={`https://solscan.io/tx/${tx.signature || tx.txid}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block px-5 py-2 rounded-lg bg-gradient-to-r from-orange-500 to-orange-700 text-white font-semibold shadow hover:from-orange-400 hover:to-orange-600 transition-colors duration-300 text-sm"
+            style={{ fontFamily: 'Inter, sans-serif', letterSpacing: '0.01em' }}
+          >
+            View on Solscan
+          </a>
+        </div>
+      </div>
+      <style>{`
+        .fade-in-slow {
+          animation: fadeInSlow 1.5s cubic-bezier(0.4,0,0.2,1);
+        }
+        @keyframes fadeInSlow {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: none; }
+        }
+      `}</style>
+    </div>
+  );
+}
+
+const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, to, signature, mint, symbol }) => {
+  const getTypeStyles = () => {
+    switch (type) {
+      case 'buy':
+        return 'bg-green-500/10 border-green-500/20 text-green-400';
+      case 'sell':
+        return 'bg-red-500/10 border-red-500/20 text-red-400';
+      case 'transfer':
+        return 'bg-blue-500/10 border-blue-500/20 text-blue-400';
+    }
+  };
+
+  const getTypeIcon = () => {
+    switch (type) {
+      case 'buy':
+        return <ArrowUpRight size={16} />;
+      case 'sell':
+        return <ArrowDownRight size={16} />;
+      case 'transfer':
+        return <ArrowRightLeft size={16} />;
+    }
+  };
+
+  const getRowBg = () => {
+    switch (type) {
+      case 'buy':
+        return 'hover:bg-green-500/5 border-green-500/10';
+      case 'sell':
+        return 'hover:bg-red-500/5 border-red-500/10';
+      case 'transfer':
+        return 'hover:bg-blue-500/5 border-blue-500/10';
+    }
+  };
+
+  return (
+    <div className={`bg-gray-900/40 border border-gray-800 rounded-lg p-4 transition-all duration-200 ${getRowBg()}`}>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-4">
+          <div className={`flex items-center space-x-2 px-3 py-1 rounded-full border ${getTypeStyles()}`}>
+            {getTypeIcon()}
+            <span className="text-sm font-medium capitalize">{type}</span>
+          </div>
+          <span className="text-gray-400 text-sm font-sans">{time}</span>
+          {symbol && (
+            <span className="text-bonk-orange text-xs font-sans font-bold">${symbol}</span>
+          )}
+        </div>
+        <div className="flex items-center space-x-4">
+          <span className="text-white font-sans font-bold">{amount}</span>
+          <a
+            href={`https://birdeye.so/token/${mint || BONK_MINT}?chain=solana`}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="View on Birdeye"
+            className="pointer-events-auto z-10"
+            tabIndex={0}
+          >
+            <ExternalLink size={16} className="text-gray-400 hover:text-orange-400 transition-colors" />
+          </a>
+        </div>
+      </div>
+      <div className="mt-3 flex items-center space-x-2 text-sm">
+        <span className="text-gray-400">From:</span>
+        <span className="text-gray-300 font-sans">{from}</span>
+      </div>
+    </div>
+  );
+};
+
+const DashboardStatsRow: React.FC<{ stats: {
+  totalBlocks: number;
+  totalTx: number;
+  walletAddresses: number;
+  avgBlockTime: number;
+  dailyTx: number;
+  dailyTxHistory: number[];
+} }> = ({ stats }) => {
+  const animatedBlocks = useAnimatedNumber(stats.totalBlocks);
+  const animatedTx = useAnimatedNumber(stats.totalTx);
+  const animatedWallets = useAnimatedNumber(stats.walletAddresses);
+  const animatedBlockTime = useAnimatedNumber(stats.avgBlockTime, 400);
+  const animatedDailyTx = useAnimatedNumber(stats.dailyTx);
+  // Chart.js data for daily tx
+  const chartData = {
+    labels: stats.dailyTxHistory.map((_: unknown, i: number) => i + 1),
+    datasets: [
+      {
+        data: stats.dailyTxHistory,
+        fill: true,
+        backgroundColor: 'rgba(59,130,246,0.08)',
+        borderColor: '#3b82f6',
+        tension: 0.4,
+        pointRadius: 0,
+      },
+    ],
+  };
+  const chartOptions = {
+    responsive: true,
+    plugins: { legend: { display: false }, tooltip: { enabled: false } },
+    scales: { x: { display: false }, y: { display: false } },
+  };
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#fff" strokeWidth="2"/><rect x="7" y="7" width="10" height="10" rx="2" stroke="#fbbf24" strokeWidth="2"/></svg>
+        <div>
+          <div className="text-gray-400 text-base font-normal mb-0.5">Total blocks</div>
+          <div className="text-2xl font-bold text-white -mt-1">{animatedBlocks.toLocaleString()}</div>
+        </div>
+      </div>
+      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M17 17H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" stroke="#fff" strokeWidth="2"/><path d="M7 17v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#fbbf24" strokeWidth="2"/></svg>
+        <div>
+          <div className="text-gray-400 text-base font-normal mb-0.5">Total transactions</div>
+          <div className="text-2xl font-bold text-white -mt-1">{animatedTx.toLocaleString()}</div>
+        </div>
+      </div>
+      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" stroke="#fff" strokeWidth="2"/><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z" stroke="#fbbf24" strokeWidth="2"/></svg>
+        <div>
+          <div className="text-gray-400 text-base font-normal mb-0.5">Wallet addresses</div>
+          <div className="text-2xl font-bold text-white -mt-1">{animatedWallets.toLocaleString()}</div>
+        </div>
+      </div>
+      <div className="rounded-xl p-6 flex flex-col justify-between shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-gray-400 text-base font-normal">Daily transactions</div>
+          <div className="text-2xl font-bold text-white">{animatedDailyTx}</div>
+        </div>
+        <div className="h-12 w-full flex items-end">
+          <Line data={chartData} options={chartOptions} height={48} />
+        </div>
+        <div className="mt-2 text-gray-400 text-xs">Average block time: <span className="text-white font-bold">{animatedBlockTime}s</span></div>
+      </div>
+    </div>
+  );
+};
+
+// --- LatestBlocksDashboard ---
+const LatestBlocksDashboard: React.FC<{ onShowAllBlocks: () => void }> = ({ onShowAllBlocks }) => {
+  // Show 7 blocks to fill the section visually
+  const { blocks } = useFakeBlocksWithHistory(7);
+  // Timer to force re-render every second for dynamic time ago
+  const [, setNow] = useState(Date.now());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+  function getTimeAgo(createdAt: number) {
+    const seconds = Math.floor((Date.now() - createdAt) / 1000);
+    if (seconds < 60) return `${seconds}s ago`;
+    const mins = Math.floor(seconds / 60);
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
+  return (
+    <div className="bg-[#181c24] border border-[#232a3a] rounded-xl p-4 flex flex-col h-full min-w-[260px]">
+      <div className="text-lg font-bold text-white mb-2">Latest blocks</div>
+      <div className="text-xs text-gray-400 mb-3">Network utilization: <span className="text-blue-400">0.00%</span></div>
+      <div className="flex-1 flex flex-col gap-3">
+        {blocks.map((block, idx) => (
+          <div key={block.number} className={`rounded-lg px-3 py-2 bg-[#101624] border border-[#232a3a] flex flex-col gap-1 ${block.fadeIn ? 'transaction-pop' : ''}`}>
+            <div className="flex items-center justify-between">
+              <span className="text-blue-400 font-sans font-bold text-base">{block.number}</span>
+              <span className="text-gray-400 text-xs">{getTimeAgo(block.createdAt)}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <span>Txn {block.txn}</span>
+              <span>Reward {block.reward}</span>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-gray-400">
+              <span>Miner</span>
+              <span className="text-gray-300 font-sans truncate max-w-[120px]">{block.miner.slice(0, 6)}...{block.miner.slice(-4)}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="pt-3 text-center">
+        <a href="#" className="text-blue-400 text-xs hover:underline" onClick={e => { e.preventDefault(); onShowAllBlocks(); }}>View all blocks</a>
+      </div>
+    </div>
+  );
+};
+
+// --- LatestTransactionsDashboard ---
+const LatestTransactionsDashboard: React.FC<{ onShowAllTransactions: () => void, transactions: LocalTransaction[], newSignatures: string[] }> = ({ onShowAllTransactions, transactions, newSignatures }) => {
+  return (
+    <div className="bg-[#181c24] border border-[#232a3a] rounded-xl p-4 flex flex-col h-full min-w-[340px]">
+      <div className="text-lg font-bold text-white mb-2">Latest transactions</div>
+      <div className="flex items-center gap-2 bg-[#232a3a] text-xs px-3 py-2 rounded mb-3">
+        <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse inline-block"></span>
+        <span className="text-green-400 font-semibold">Live</span>
+      </div>
+      <div className="flex-1 flex flex-col gap-3">
+        {transactions.slice(0, 6).map((tx) => (
+          <Link
+            key={tx.signature}
+            to={`/bonkscan/tx/${tx.signature}`}
+            className={`transaction-row-animated ${newSignatures.includes(tx.signature) ? 'transaction-pop' : ''}`}
+            style={{ textDecoration: 'none' }}
+          >
+            <TransactionRow {...tx} />
+          </Link>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+interface BlockDetailsPageProps {
+  block: any;
+  onBack: () => void;
+}
+function BlockDetailsPage({ block, onBack }: BlockDetailsPageProps) {
   const [activeTab, setActiveTab] = useState<'transactions' | 'rewards' | 'programs' | 'accounts'>('transactions');
 
   // Mock block details
@@ -873,684 +1820,5 @@ function BlockDetailsPage({ block, onBack }: { block: any, onBack: () => void })
 function copyToClipboard(text: string) {
   navigator.clipboard.writeText(text);
 }
-
-// Add DashboardHeader component
-function DashboardHeaderWithSearch({ blockSearch, handleBlockInput, handleBlockKeyDown, handleClearSearch, blockResults, handleSelectBlock, showDropdown, setShowDropdown, inputRef }) {
-  const navigate = useNavigate();
-  return (
-    <div className="flex items-center w-full px-8 py-4 gap-8">
-      <div className="flex items-center gap-8 flex-1 min-w-0">
-        <img src="/bonk-logo.png" alt="Bonk Logo" className="w-9 h-9" />
-        <nav className="flex items-center gap-6">
-          <a href="/" className="text-white font-extralight hover:text-bonk-orange transition">BonkChain</a>
-          <a href="/bonkscan" className="text-white font-extralight hover:text-bonk-orange transition">BonkScan</a>
-          <button
-            onClick={() => navigate('/bonkswap')}
-            className="text-white font-extralight hover:text-bonk-orange transition focus:outline-none"
-            style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
-          >
-            BonkSwap
-          </button>
-          <a href="/bonkstake" className="text-white font-extralight hover:text-bonk-orange transition">BonkStake</a>
-          <a href="https://x.com/bonkchainfun" target="_blank" rel="noopener noreferrer" className="text-white font-extralight hover:text-bonk-orange transition">Twitter</a>
-        </nav>
-      </div>
-      <div className="flex-1 flex justify-center">
-        <div className="relative w-full max-w-lg">
-          <input
-            ref={inputRef}
-            type="text"
-            className="w-full bg-[#181c24] border border-[#232a3a] text-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:border-bonk-orange transition"
-            placeholder="Search blocks..."
-            value={blockSearch}
-            onChange={handleBlockInput}
-            onKeyDown={handleBlockKeyDown}
-            onFocus={() => setShowDropdown(true)}
-          />
-          {blockSearch && (
-            <button
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-orange-400"
-              onClick={handleClearSearch}
-              tabIndex={-1}
-              aria-label="Clear search"
-            >
-              <X size={18} />
-            </button>
-          )}
-          {showDropdown && blockResults.length > 0 && (
-            <div className="absolute z-20 mt-2 w-full bg-[#181c24] border border-[#232a3a] rounded-lg shadow-lg max-h-60 overflow-auto">
-              {blockResults.map((block, i) => (
-                <div
-                  key={block.number}
-                  className="px-4 py-2 text-gray-200 hover:bg-bonk-orange/20 cursor-pointer flex items-center justify-between"
-                  onMouseDown={() => handleSelectBlock(block.number)}
-                >
-                  <span>Block {block.number}</span>
-                  <span className="text-xs text-gray-400 ml-2">{block.txn} txns</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="flex-1" />
-    </div>
-  );
-}
-
-function App() {
-  // --- Stat Card Data for Solana Explorer style ---
-  const supply = 605600000;
-  const circulating = 537900000;
-  const circulatingPercent = ((circulating / supply) * 100).toFixed(1);
-  const activeStake = 400000000;
-  const delinquentStake = 0.2;
-  const { tokens } = useTokens();
-  // --- End new data ---
-
-  const metrics = [
-    { title: 'Market Cap', value: '$1.22B', change: '+1.12%', isPositive: true },
-    { title: 'Price', value: '$0.041', change: '+0.47%', isPositive: true },
-    { title: 'Liquidity', value: '$39.7K', change: '-0.88%', isPositive: false },
-    { title: 'Supply', value: '88.8T' },
-    { title: 'Holders', value: '945,730', change: '-0.64%', isPositive: false },
-  ];
-
-  const [transactions, setTransactions] = useState<LocalTransaction[]>([]);
-  const [newSignatures, setNewSignatures] = useState<string[]>([]);
-  const [showAllTransactions, setShowAllTransactions] = useState(false);
-  const [showTokenTransfers, setShowTokenTransfers] = useState(false);
-  const [showChartAndStats, setShowChartAndStats] = useState(false);
-  const { blocks: latestBlocks, allBlocks } = useFakeBlocksWithHistory(5);
-  const [blockSearch, setBlockSearch] = useState("");
-  const [selectedBlock, setSelectedBlock] = useState<any | null>(null);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-
-  // Filter blocks for dropdown (unique results only)
-  const blockResults = blockSearch.length > 0
-    ? Array.from(new Set(
-        allBlocks
-          .filter(b => b.number.toString().includes(blockSearch))
-          .map(b => b.number)
-      ))
-      .slice(0, 5)
-      .map(num => allBlocks.find(b => b.number === num))
-      .filter(Boolean)
-    : [];
-
-  // Handle input change
-  function handleBlockInput(e: React.ChangeEvent<HTMLInputElement>) {
-    setBlockSearch(e.target.value);
-    setShowDropdown(true);
-  }
-
-  // Handle dropdown selection
-  function handleSelectBlock(num: number) {
-    const found = allBlocks.find(b => b.number === num);
-    if (found) setSelectedBlock(found);
-    setBlockSearch("");
-    setShowDropdown(false);
-  }
-
-  // Handle Enter key
-  function handleBlockKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
-    if (e.key === 'Enter' && blockResults.length > 0) {
-      handleSelectBlock(blockResults[0].number);
-    }
-    if (e.key === 'Escape') {
-      setShowDropdown(false);
-    }
-  }
-
-  // Handle clear
-  function handleClearSearch() {
-    setBlockSearch("");
-    setShowDropdown(false);
-    inputRef.current?.focus();
-  }
-
-  useEffect(() => {
-    if (!tokens.length) return;
-    let timeout: NodeJS.Timeout;
-    function addTransactions() {
-      setTransactions(prev => {
-        const burst = Math.random() < 0.35; // 35% chance for a burst
-        const count = burst ? Math.floor(Math.random() * 6) + 3 : 1; // 3-8 or 1
-        const newTxs: LocalTransaction[] = Array.from({ length: count })
-          .map(() => {
-            const randomToken = tokens[Math.floor(Math.random() * tokens.length)];
-            if (!randomToken) return null;
-            const type = Math.random() > 0.5 ? 'buy' : 'sell';
-            const solAmount = (Math.random() * 9.8 + 0.2).toFixed(2); // 0.2 - 10 SOL
-            const price = randomToken.price || 0.00002;
-            const bonkAmount = price ? (Number(solAmount) / price) : 0;
-            const amountStr = bonkAmount > 1_000_000 ? (bonkAmount / 1_000_000).toFixed(2) + 'M ' + randomToken.symbol : bonkAmount.toFixed(0) + ' ' + randomToken.symbol;
-            const from = randomWallet();
-            const to = randomWallet();
-            return {
-              type,
-              time: 'just now',
-              amount: amountStr,
-              from,
-              to,
-              signature: Math.random().toString(36).slice(2, 10),
-              mint: randomToken.mint,
-              symbol: randomToken.symbol,
-            };
-          })
-          .filter((tx): tx is LocalTransaction => !!tx);
-        // Track new signatures for pop animation
-        setNewSignatures(newTxs.map(tx => tx.signature));
-        return [
-          ...newTxs,
-          ...prev.slice(0, 20 - newTxs.length),
-        ];
-      });
-      // Next interval: random between 200ms and 1200ms
-      const next = Math.floor(Math.random() * 1000) + 200;
-      timeout = setTimeout(addTransactions, next);
-    }
-    addTransactions();
-    return () => clearTimeout(timeout);
-  }, [tokens]);
-
-  // Clear newSignatures after animation
-  useEffect(() => {
-    if (newSignatures.length === 0) return;
-    const timeout = setTimeout(() => setNewSignatures([]), 500);
-    return () => clearTimeout(timeout);
-  }, [newSignatures]);
-
-  function randomWallet() {
-    const chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-    return (
-      Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('') +
-      '...' +
-      Array.from({ length: 4 }, () => chars[Math.floor(Math.random() * chars.length)]).join('')
-    );
-  }
-
-  function getRelativeTime(dateValue: number): string {
-    const now = Date.now();
-    const diff = Math.max(0, now - dateValue);
-    const mins = Math.floor(diff / 60000);
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  }
-
-  function formatBonkAmount(amount: number): string {
-    if (amount >= 1_000_000_000) return (amount / 1_000_000_000).toFixed(2) + 'B BONK';
-    if (amount >= 1_000_000) return (amount / 1_000_000).toFixed(2) + 'M BONK';
-    if (amount >= 1_000) return (amount / 1_000).toFixed(2) + 'K BONK';
-    return amount + ' BONK';
-  }
-
-  function shorten(addr: string) {
-    if (!addr) return '';
-    return addr.slice(0, 3) + '...' + addr.slice(-3);
-  }
-
-  const stats = useRealisticStats();
-
-  // --- New: Cluster and Transaction Stats Data ---
-  const clusterStats = [
-    { label: 'Slot', value: latestBlocks[0]?.number.toLocaleString(), copy: latestBlocks[0]?.number.toString() },
-    { label: 'Block height', value: latestBlocks[0]?.number.toLocaleString(), copy: latestBlocks[0]?.number.toString() },
-    { label: 'Cluster time', value: new Date(latestBlocks[0]?.createdAt).toUTCString() },
-    { label: 'Slot time (1min avg)', value: `${(Math.random() * 100 + 350).toFixed(0)}ms` },
-    { label: 'Slot time (1hr avg)', value: `${(Math.random() * 100 + 350).toFixed(0)}ms` },
-    { label: 'Epoch', value: (820 + Math.floor(Math.random() * 10)).toString(), copy: (820 + Math.floor(Math.random() * 10)).toString() },
-    { label: 'Epoch progress', value: `${(Math.random() * 100).toFixed(1)}%` },
-    { label: 'Epoch time remaining (approx.)', value: `~${Math.floor(Math.random() * 6)}h ${Math.floor(Math.random() * 60)}m ${Math.floor(Math.random() * 60)}s` },
-  ];
-  const txStats = [
-    { label: 'Transaction count', value: stats.totalTx.toLocaleString() },
-    { label: 'Transactions per second (TPS)', value: (Math.random() * 4000 + 1000).toFixed(0) },
-  ];
-
-  // --- End new data ---
-
-  // TPS line chart data
-  const [tpsRange, setTpsRange] = useState<'30m' | '2h' | '6h'>('30m');
-  const [tpsLineData, setTpsLineData] = useState<number[]>(Array.from({ length: 60 }, () => 2000 + Math.floor(Math.random() * 200)));
-
-  // Animate the line chart by shifting in new data every second (gentle random walk)
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTpsLineData(prev => {
-        const last = prev[prev.length - 1] || 2000;
-        // Gentle random walk: previous ± 40, clamp between 1200 and 4000
-        let nextVal = last + Math.floor(Math.random() * 81) - 40;
-        nextVal = Math.max(1200, Math.min(4000, nextVal));
-        const next = prev.slice(1);
-        next.push(nextVal);
-        return next;
-      });
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const tpsLineLabels = Array.from({ length: tpsLineData.length }, (_, i) => i + 1);
-  const tpsLineChartData = {
-    labels: tpsLineLabels,
-    datasets: [
-      {
-        label: 'Transactions this moment',
-        data: tpsLineData,
-        fill: true,
-        backgroundColor: 'rgba(255,153,0,0.08)',
-        borderColor: '#ff9900',
-        tension: 0.4,
-        pointRadius: 0,
-      },
-    ],
-  };
-  const tpsLineChartOptions = {
-    responsive: true,
-    animation: { duration: 500 },
-    plugins: {
-      legend: { display: false },
-      tooltip: {
-        enabled: true,
-        callbacks: {
-          label: function(context: any) {
-            return `Transactions this moment: ${context.parsed.y}`;
-          }
-        }
-      }
-    },
-    scales: {
-      x: { display: false },
-      y: { display: false },
-    },
-  };
-
-  return (
-    <div className="min-h-screen bg-[#101315] flex flex-col items-center">
-      <DashboardHeaderWithSearch
-        blockSearch={blockSearch}
-        handleBlockInput={handleBlockInput}
-        handleBlockKeyDown={handleBlockKeyDown}
-        handleClearSearch={handleClearSearch}
-        blockResults={blockResults}
-        handleSelectBlock={handleSelectBlock}
-        showDropdown={showDropdown}
-        setShowDropdown={setShowDropdown}
-        inputRef={inputRef}
-      />
-      {/* Main content columns start here */}
-      {selectedBlock ? (
-        <BlockDetailsPage block={selectedBlock} onBack={() => setSelectedBlock(null)} />
-      ) : (
-        <>
-          <div className="w-full max-w-7xl mx-auto flex flex-col items-center px-4">
-            {/* Stat Cards Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mt-8 mb-4">
-              {/* Circulating Supply Card */}
-              <div className="card w-full px-8 py-5 flex flex-col justify-center rounded-xl shadow-sm">
-                <div className="text-base text-gray-300 font-semibold mb-1">Circulating Supply</div>
-                <div className="flex items-end gap-2">
-                  <span className="text-3xl text-bonk-orange" style={{ fontWeight: 350 }}>{(circulating/1e6).toFixed(1)}M</span>
-                  <span className="text-xl text-gray-400" style={{ fontWeight: 300 }}>/ {(supply/1e6).toFixed(1)}M</span>
-                </div>
-                <div className="text-sm mt-1 text-green-400 font-semibold">{circulatingPercent}% is circulating</div>
-              </div>
-              {/* Active Stake Card */}
-              <div className="card w-full px-8 py-5 flex flex-col justify-center rounded-xl shadow-sm">
-                <div className="text-base text-gray-300 font-semibold mb-1">Active Stake</div>
-                <div className="flex items-end gap-2">
-                  <span className="text-3xl text-bonk-orange" style={{ fontWeight: 350 }}>{(activeStake/1e6).toFixed(0)}M</span>
-                  <span className="text-xl text-gray-400" style={{ fontWeight: 300 }}>/ {(supply/1e6).toFixed(1)}M</span>
-                </div>
-                <div className="text-sm mt-1 text-green-400 font-semibold">Delinquent stake: {delinquentStake}%</div>
-              </div>
-            </div>
-            {/* Main Grid Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full mb-6">
-              {/* Live Cluster Stats */}
-              <div className="card w-full px-0 py-0 overflow-hidden rounded-xl shadow-sm">
-                <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Live Cluster Stats</div>
-                <table className="w-full text-left text-base">
-                  <tbody>
-                    {clusterStats.map((row, i) => (
-                      <tr key={i} className="table-row group hover:bg-[#232a3a]/30 transition">
-                        <td className="py-3 px-6 text-gray-400 font-medium w-1/2 flex items-center gap-2">{row.label}{row.copy && (<button onClick={() => copyToClipboard(row.copy!)} className="ml-1 text-bonk-orange opacity-70 hover:opacity-100" title="Copy"><Clipboard size={16} /></button>)}</td>
-                        <td className="py-3 px-6 text-bonk-orange font-sans font-bold text-right">{row.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-              {/* Live Transaction Stats */}
-              <div className="card w-full px-0 py-0 overflow-hidden rounded-xl shadow-sm">
-                <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Live Transaction Stats</div>
-                <table className="w-full text-left text-base">
-                  <tbody>
-                    {txStats.map((row, i) => (
-                      <tr key={i} className="table-row group hover:bg-[#232a3a]/30 transition">
-                        <td className="py-3 px-6 text-gray-400 font-medium w-1/2">{row.label}</td>
-                        <td className="py-3 px-6 text-bonk-orange font-sans font-bold text-right">{row.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                {/* TPS history chart placeholder */}
-                <div className="px-6 pb-4 pt-2">
-                  <div className="text-gray-400 text-sm mb-2">TPS history</div>
-                  <div className="flex gap-2 mb-2">
-                    <button className={`px-3 py-1 rounded bg-[#232a3a] font-semibold text-xs border border-bonk-orange/30 ${tpsRange==='30m'?'text-bonk-orange':'text-gray-400'}`} onClick={()=>setTpsRange('30m')}>30m</button>
-                    <button className={`px-3 py-1 rounded bg-[#232a3a] font-semibold text-xs border border-bonk-orange/30 ${tpsRange==='2h'?'text-bonk-orange':'text-gray-400'}`} onClick={()=>setTpsRange('2h')}>2h</button>
-                    <button className={`px-3 py-1 rounded bg-[#232a3a] font-semibold text-xs border border-bonk-orange/30 ${tpsRange==='6h'?'text-bonk-orange':'text-gray-400'}`} onClick={()=>setTpsRange('6h')}>6h</button>
-                  </div>
-                  <div className="h-32 w-full bg-gradient-to-t from-bonk-orange/20 to-transparent rounded-lg flex items-end overflow-hidden mb-4">
-                    {/* Simulated bar chart */}
-                    {Array.from({ length: 24 }).map((_, i) => (
-                      <div key={i} className="mx-0.5 w-2 rounded bg-bonk-orange" style={{ height: `${Math.random() * 80 + 40}px` }}></div>
-                    ))}
-                  </div>
-                  {/* Interactive TPS line chart */}
-                  <div className="h-36 w-full">
-                    <Line data={tpsLineChartData} options={tpsLineChartOptions} height={140} />
-                  </div>
-                  <div className="text-xs text-gray-400 mt-2">For transaction confirmation time statistics, please visit <a href="https://validators.app" className="text-green-400 underline" target="_blank" rel="noopener noreferrer">validators.app</a> or <a href="https://solscan.io" className="text-green-400 underline" target="_blank" rel="noopener noreferrer">solscan.io</a></div>
-                </div>
-              </div>
-            </div>
-            {/* Footer Card: Kickstart your development journey */}
-            <div className="card w-full mt-2 mb-8 px-0 py-0 overflow-hidden rounded-xl shadow-sm">
-              <div className="px-6 py-4 text-base font-bold text-white border-b border-[#232a3a]">Kickstart your development journey on BonkChain</div>
-              <div className="flex flex-row gap-4 px-6 py-4 items-start">
-                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
-                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-blue-500/20 transition-shadow">
-                    <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                      </svg>
-                </div>
-                </div>
-                  <div className="text-white font-semibold text-base mt-2 group-hover:text-blue-400 transition-colors">Setup Your BonkChain Environment</div>
-                  <div className="text-gray-400 text-sm">Install CLI tools, configure RPC endpoints, and deploy your first smart contract</div>
-                </div>
-                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
-                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-green-500/20 transition-shadow">
-                    <div className="absolute inset-0 bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-white font-semibold text-base mt-2 group-hover:text-green-400 transition-colors">Quick Start Guide</div>
-                  <div className="text-gray-400 text-sm">Learn account creation, token transfers, and basic transaction structure</div>
-                </div>
-                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
-                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-orange-500/20 transition-shadow">
-                    <div className="absolute inset-0 bg-gradient-to-br from-orange-500 to-red-600 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-white font-semibold text-base mt-2 group-hover:text-orange-400 transition-colors">BonkChain Developer Bootcamp</div>
-                  <div className="text-gray-400 text-sm">Master advanced concepts: DEX development, yield farming, and DeFi protocols</div>
-                </div>
-                <div className="flex-1 flex flex-col gap-2 group cursor-pointer hover:scale-105 transition-transform duration-200">
-                  <div className="bg-[#232a3a] rounded-lg h-24 w-full flex items-center justify-center overflow-hidden relative group-hover:shadow-lg group-hover:shadow-purple-500/20 transition-shadow">
-                    <div className="absolute inset-0 bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center">
-                      <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                      </svg>
-                    </div>
-                  </div>
-                  <div className="text-white font-semibold text-base mt-2 group-hover:text-purple-400 transition-colors">60 Days of BonkChain</div>
-                  <div className="text-gray-400 text-sm">Daily challenges: build a DEX, create NFTs, and deploy complex DeFi protocols</div>
-                </div>
-              </div>
-              <div className="px-6 pb-4">
-                <div className="flex items-center justify-between text-sm text-gray-400">
-                  <span>Live Network Status</span>
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    <span className="text-green-400">Online</span>
-                </div>
-              </div>
-                <div className="mt-3 flex items-center gap-4 text-xs text-gray-500">
-                  <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-ping"></div>
-                    <span>Blocks: 2,847,392</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-green-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
-                    <span>TPS: 65,432</span>
-                  </div>
-                  <div className="flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-purple-400 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
-                    <span>Validators: 1,847</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, to, signature, mint, symbol }) => {
-  const getTypeStyles = () => {
-    switch (type) {
-      case 'buy':
-        return 'bg-green-500/10 border-green-500/20 text-green-400';
-      case 'sell':
-        return 'bg-red-500/10 border-red-500/20 text-red-400';
-      case 'transfer':
-        return 'bg-blue-500/10 border-blue-500/20 text-blue-400';
-    }
-  };
-
-  const getTypeIcon = () => {
-    switch (type) {
-      case 'buy':
-        return <ArrowUpRight size={16} />;
-      case 'sell':
-        return <ArrowDownRight size={16} />;
-      case 'transfer':
-        return <ArrowRightLeft size={16} />;
-    }
-  };
-
-  const getRowBg = () => {
-    switch (type) {
-      case 'buy':
-        return 'hover:bg-green-500/5 border-green-500/10';
-      case 'sell':
-        return 'hover:bg-red-500/5 border-red-500/10';
-      case 'transfer':
-        return 'hover:bg-blue-500/5 border-blue-500/10';
-    }
-  };
-
-  return (
-    <div className={`bg-gray-900/40 border border-gray-800 rounded-lg p-4 transition-all duration-200 ${getRowBg()}`}>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <div className={`flex items-center space-x-2 px-3 py-1 rounded-full border ${getTypeStyles()}`}>
-            {getTypeIcon()}
-            <span className="text-sm font-medium capitalize">{type}</span>
-          </div>
-          <span className="text-gray-400 text-sm font-sans">{time}</span>
-          {symbol && (
-            <span className="text-bonk-orange text-xs font-sans font-bold">${symbol}</span>
-          )}
-        </div>
-        <div className="flex items-center space-x-4">
-          <span className="text-white font-sans font-bold">{amount}</span>
-          <a
-            href={`https://birdeye.so/token/${mint || BONK_MINT}?chain=solana`}
-            target="_blank"
-            rel="noopener noreferrer"
-            title="View on Birdeye"
-            className="pointer-events-auto z-10"
-            tabIndex={0}
-          >
-            <ExternalLink size={16} className="text-gray-400 hover:text-orange-400 transition-colors" />
-          </a>
-        </div>
-      </div>
-      <div className="mt-3 flex items-center space-x-2 text-sm">
-        <span className="text-gray-400">From:</span>
-        <span className="text-gray-300 font-sans">{from}</span>
-      </div>
-    </div>
-  );
-};
-
-const DashboardStatsRow: React.FC<{ stats: {
-  totalBlocks: number;
-  totalTx: number;
-  walletAddresses: number;
-  avgBlockTime: number;
-  dailyTx: number;
-  dailyTxHistory: number[];
-} }> = ({ stats }) => {
-  const animatedBlocks = useAnimatedNumber(stats.totalBlocks);
-  const animatedTx = useAnimatedNumber(stats.totalTx);
-  const animatedWallets = useAnimatedNumber(stats.walletAddresses);
-  const animatedBlockTime = useAnimatedNumber(stats.avgBlockTime, 400);
-  const animatedDailyTx = useAnimatedNumber(stats.dailyTx);
-  // Chart.js data for daily tx
-  const chartData = {
-    labels: stats.dailyTxHistory.map((_: unknown, i: number) => i + 1),
-    datasets: [
-      {
-        data: stats.dailyTxHistory,
-        fill: true,
-        backgroundColor: 'rgba(59,130,246,0.08)',
-        borderColor: '#3b82f6',
-        tension: 0.4,
-        pointRadius: 0,
-      },
-    ],
-  };
-  const chartOptions = {
-    responsive: true,
-    plugins: { legend: { display: false }, tooltip: { enabled: false } },
-    scales: { x: { display: false }, y: { display: false } },
-  };
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
-        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" stroke="#fff" strokeWidth="2"/><rect x="7" y="7" width="10" height="10" rx="2" stroke="#fbbf24" strokeWidth="2"/></svg>
-        <div>
-          <div className="text-gray-400 text-base font-normal mb-0.5">Total blocks</div>
-          <div className="text-2xl font-bold text-white -mt-1">{animatedBlocks.toLocaleString()}</div>
-        </div>
-      </div>
-      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
-        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M17 17H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2Z" stroke="#fff" strokeWidth="2"/><path d="M7 17v2a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2v-2" stroke="#fbbf24" strokeWidth="2"/></svg>
-        <div>
-          <div className="text-gray-400 text-base font-normal mb-0.5">Total transactions</div>
-          <div className="text-2xl font-bold text-white -mt-1">{animatedTx.toLocaleString()}</div>
-        </div>
-      </div>
-      <div className="rounded-xl p-6 flex items-center gap-4 shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
-        <svg width="32" height="32" fill="none" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4Z" stroke="#fff" strokeWidth="2"/><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4Z" stroke="#fbbf24" strokeWidth="2"/></svg>
-        <div>
-          <div className="text-gray-400 text-base font-normal mb-0.5">Wallet addresses</div>
-          <div className="text-2xl font-bold text-white -mt-1">{animatedWallets.toLocaleString()}</div>
-        </div>
-      </div>
-      <div className="rounded-xl p-6 flex flex-col justify-between shadow bg-[#181c24] border border-[#232a3a] h-full min-h-[120px]">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-gray-400 text-base font-normal">Daily transactions</div>
-          <div className="text-2xl font-bold text-white">{animatedDailyTx}</div>
-        </div>
-        <div className="h-12 w-full flex items-end">
-          <Line data={chartData} options={chartOptions} height={48} />
-        </div>
-        <div className="mt-2 text-gray-400 text-xs">Average block time: <span className="text-white font-bold">{animatedBlockTime}s</span></div>
-      </div>
-    </div>
-  );
-};
-
-// --- LatestBlocksDashboard ---
-const LatestBlocksDashboard: React.FC<{ onShowAllBlocks: () => void }> = ({ onShowAllBlocks }) => {
-  // Show 7 blocks to fill the section visually
-  const { blocks } = useFakeBlocksWithHistory(7);
-  // Timer to force re-render every second for dynamic time ago
-  const [, setNow] = useState(Date.now());
-  useEffect(() => {
-    const interval = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-  function getTimeAgo(createdAt: number) {
-    const seconds = Math.floor((Date.now() - createdAt) / 1000);
-    if (seconds < 60) return `${seconds}s ago`;
-    const mins = Math.floor(seconds / 60);
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  }
-  return (
-    <div className="bg-[#181c24] border border-[#232a3a] rounded-xl p-4 flex flex-col h-full min-w-[260px]">
-      <div className="text-lg font-bold text-white mb-2">Latest blocks</div>
-      <div className="text-xs text-gray-400 mb-3">Network utilization: <span className="text-blue-400">0.00%</span></div>
-      <div className="flex-1 flex flex-col gap-3">
-        {blocks.map((block, idx) => (
-          <div key={block.number} className={`rounded-lg px-3 py-2 bg-[#101624] border border-[#232a3a] flex flex-col gap-1 ${block.fadeIn ? 'transaction-pop' : ''}`}>
-            <div className="flex items-center justify-between">
-              <span className="text-blue-400 font-sans font-bold text-base">{block.number}</span>
-              <span className="text-gray-400 text-xs">{getTimeAgo(block.createdAt)}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>Txn {block.txn}</span>
-              <span>Reward {block.reward}</span>
-            </div>
-            <div className="flex items-center gap-2 text-xs text-gray-400">
-              <span>Miner</span>
-              <span className="text-gray-300 font-sans truncate max-w-[120px]">{block.miner.slice(0, 6)}...{block.miner.slice(-4)}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="pt-3 text-center">
-        <a href="#" className="text-blue-400 text-xs hover:underline" onClick={e => { e.preventDefault(); onShowAllBlocks(); }}>View all blocks</a>
-      </div>
-    </div>
-  );
-};
-
-// --- LatestTransactionsDashboard ---
-const LatestTransactionsDashboard: React.FC<{ onShowAllTransactions: () => void, transactions: LocalTransaction[], newSignatures: string[] }> = ({ onShowAllTransactions, transactions, newSignatures }) => {
-  return (
-    <div className="bg-[#181c24] border border-[#232a3a] rounded-xl p-4 flex flex-col h-full min-w-[340px]">
-      <div className="text-lg font-bold text-white mb-2">Latest transactions</div>
-      <div className="flex items-center gap-2 bg-[#232a3a] text-xs px-3 py-2 rounded mb-3">
-        <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse inline-block"></span>
-        <span className="text-green-400 font-semibold">Live</span>
-      </div>
-      <div className="flex-1 flex flex-col gap-3">
-        {transactions.slice(0, 6).map((tx) => (
-          <div
-            key={tx.signature}
-            className={`transaction-row-animated ${newSignatures.includes(tx.signature) ? 'transaction-pop' : ''}`}
-          >
-            <TransactionRow {...tx} />
-          </div>
-        ))}
-      </div>
-      <div className="pt-3 text-center">
-        <a href="#" className="text-blue-400 text-xs hover:underline" onClick={e => { e.preventDefault(); onShowAllTransactions(); }}>View all transactions</a>
-      </div>
-    </div>
-  );
-};
 
 export default App;

@@ -2,77 +2,43 @@ import React, { useState } from 'react';
 import { Globe, FileText, Twitter, Zap, Shield, TrendingUp, X } from 'lucide-react';
 
 export default function BonkStake() {
-  const [showModal, setShowModal] = useState(false);
-  const [email, setEmail] = useState('');
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [emailError, setEmailError] = useState('');
-
-  const validateEmail = (email: string) => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setEmailError('');
-    
-    if (!email) {
-      setEmailError('Please enter an email address');
-      return;
-    }
-    
-    if (!validateEmail(email)) {
-      setEmailError('Please enter a valid email address');
-      return;
-    }
-    
-    // Here you would typically send the email to your backend
-    console.log('Email submitted:', email);
-    setIsSubmitted(true);
-    
-    // Close modal after 2 seconds
-    setTimeout(() => {
-      setShowModal(false);
-      setIsSubmitted(false);
-      setEmail('');
-    }, 2000);
-  };
+  const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
 
   return (
     <div className="min-h-screen bg-custom-dark text-white">
       {/* Header */}
       <div className="flex items-center justify-between p-6">
-        <div className="flex items-center space-x-8">
-          <div className="flex items-center space-x-2">
-            <img src="/bonk-logo.png" alt="Bonk Logo" className="w-8 h-8" />
-            <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+        <div className="flex items-center">
+          <div className="flex items-center">
+            <img src="/bonk-logo.png" alt="Bonk Logo" className="w-8 h-8 rounded-full object-cover" />
+            <span className="text-xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent ml-3">
               BonkStake
             </span>
           </div>
           
           {/* Main Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-6">
+          <nav className="hidden lg:flex items-center space-x-2 ml-8">
             <a 
               href="/"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkChain
             </a>
             <a 
               href="/bonkscan"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/bonkscan' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkScan
             </a>
             <a 
               href="/bonkswap"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/bonkswap' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkSwap
             </a>
             <a 
               href="/bonkstake"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-orange-400 bg-gray-800/50 transition-all duration-200"
+              className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/bonkstake' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
             >
               BonkStake
             </a>
@@ -80,7 +46,7 @@ export default function BonkStake() {
               href="https://x.com/bonkchainfun"
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-2 rounded-lg text-sm font-medium text-gray-300 hover:text-orange-400 hover:bg-gray-800/50 transition-all duration-200"
+              className="px-3 py-2 rounded-lg text-sm font-light text-gray-300 hover:text-orange-400 transition-all duration-200"
             >
               Twitter
             </a>
@@ -229,93 +195,10 @@ export default function BonkStake() {
         {/* Coming Soon Message */}
         <div className="text-center">
           <div className="bg-gradient-to-r from-orange-500 to-red-500 rounded-xl p-8 max-w-md mx-auto">
-            <h3 className="text-2xl font-bold mb-4" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 350 }}>Coming Soon</h3>
-            <p className="text-gray-100 mb-6">
-              Join the waitlist to be notified when BonkStake launches.
-            </p>
-            <button 
-              onClick={() => setShowModal(true)}
-              className="bg-white text-black px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors"
-            >
-              Join Waitlist
-            </button>
+            <h3 className="text-2xl font-bold mb-0" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 350 }}>Coming Soon</h3>
           </div>
         </div>
       </div>
-
-      {/* Email Modal */}
-      {showModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-gray-800/80 rounded-2xl shadow-2xl max-w-md w-full border border-gray-600">
-            <div className="flex items-center justify-between p-6 border-b border-gray-600">
-              <h3 className="text-xl font-semibold text-white" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 350 }}>
-                Join Waitlist
-              </h3>
-              <button
-                onClick={() => setShowModal(false)}
-                className="text-gray-400 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            
-            <div className="p-6">
-              {!isSubmitted ? (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Email Address
-                    </label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="Enter your email address"
-                      className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-orange-500 transition-colors"
-                      style={{ fontFamily: 'Rubik, sans-serif' }}
-                    />
-                    {emailError && (
-                      <p className="text-red-400 text-sm mt-1">{emailError}</p>
-                    )}
-                  </div>
-                  
-                  <div className="flex space-x-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setShowModal(false)}
-                      className="flex-1 px-4 py-3 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors"
-                      style={{ fontFamily: 'Rubik, sans-serif' }}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="submit"
-                      className="flex-1 px-4 py-3 bg-gradient-to-r from-orange-500 to-red-500 text-white rounded-lg hover:from-orange-600 hover:to-red-600 transition-colors font-semibold"
-                      style={{ fontFamily: 'Rubik, sans-serif' }}
-                    >
-                      Submit
-                    </button>
-                  </div>
-                </form>
-              ) : (
-                <div className="text-center py-8">
-                  <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  </div>
-                  <h4 className="text-xl font-semibold text-white mb-2" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 350 }}>
-                    Thank You!
-                  </h4>
-                  <p className="text-gray-300" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 300 }}>
-                    You will be notified when BonkStake launches.
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 } 

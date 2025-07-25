@@ -194,7 +194,7 @@ export default function SwapInterface({}: SwapInterfaceProps) {
             <img 
               src="/bonk-logo.png" 
               alt="Bonk" 
-              className="w-10 h-10 object-contain"
+              className="w-12 h-12 rounded-full object-cover"
               onError={(e) => {
                 // Fallback to text if image fails to load
                 const target = e.target as HTMLImageElement;
@@ -240,7 +240,9 @@ export default function SwapInterface({}: SwapInterfaceProps) {
                     placeholder="0"
                     className="text-right text-2xl font-bold text-white bg-transparent border-none outline-none w-32"
                   />
-                  <span className="text-sm text-gray-400">$0.00</span>
+                  <span className="text-sm text-gray-400">
+                    ${sellAmount && !isNaN(Number(sellAmount)) ? (Number(sellAmount) * getTokenPrice(sellToken)).toFixed(4) : '0.00'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -283,7 +285,9 @@ export default function SwapInterface({}: SwapInterfaceProps) {
                   placeholder="0"
                     className="text-right text-2xl font-bold text-white bg-transparent border-none outline-none w-32"
                 />
-                  <span className="text-sm text-gray-400">$0.00</span>
+                  <span className="text-sm text-gray-400">
+                    ${buyAmount && !isNaN(Number(buyAmount)) ? (Number(buyAmount) * getTokenPrice(buyToken)).toFixed(4) : '0.00'}
+                  </span>
                 </div>
               </div>
             </div>

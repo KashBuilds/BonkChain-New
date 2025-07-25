@@ -1,5 +1,6 @@
 export const mockTokens = [
   {
+    creator: '7xKX...9mF2',
     symbol: 'USELESS',
     name: 'USELESS',
     price: 0.0014,
@@ -8,8 +9,10 @@ export const mockTokens = [
     marketCap: 245578728.76,
     totalSupply: 178570000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'USDC',
     name: 'USD Coin',
     price: 1.0,
@@ -18,8 +21,10 @@ export const mockTokens = [
     marketCap: 100000000,
     totalSupply: 100000000,
     icon: '',
+    mint: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // Real USDC mint
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'USDT',
     name: 'Tether',
     price: 1.0,
@@ -28,8 +33,10 @@ export const mockTokens = [
     marketCap: 100000000,
     totalSupply: 100000000,
     icon: '',
+    mint: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', // Real USDT mint
   },
   {
+    creator: '7xKX...9mF2',
     symbol: '二哈',
     name: '二哈',
     price: 0.0025,
@@ -38,8 +45,10 @@ export const mockTokens = [
     marketCap: 7800000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'CRYBB',
     name: 'CRYBB',
     price: 0.003,
@@ -48,8 +57,10 @@ export const mockTokens = [
     marketCap: 7800000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'IKUN',
     name: 'IKUN',
     price: 0.004,
@@ -58,8 +69,10 @@ export const mockTokens = [
     marketCap: 8900000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'BLUECHIP',
     name: 'BLUECHIP',
     price: 0.005,
@@ -68,8 +81,10 @@ export const mockTokens = [
     marketCap: 9300000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'RT',
     name: 'RT',
     price: 0.006,
@@ -78,8 +93,10 @@ export const mockTokens = [
     marketCap: 20100000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'MOMO',
     name: 'MOMO',
     price: 0.007,
@@ -88,8 +105,10 @@ export const mockTokens = [
     marketCap: 13300000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'KORI',
     name: 'KORI',
     price: 0.0023,
@@ -98,8 +117,10 @@ export const mockTokens = [
     marketCap: 22800000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'HOSICO',
     name: 'HOSICO',
     price: 0.0033,
@@ -108,8 +129,10 @@ export const mockTokens = [
     marketCap: 32800000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
   {
+    creator: '7xKX...9mF2',
     symbol: 'ANI',
     name: 'ANI',
     price: 0.0031,
@@ -118,5 +141,6 @@ export const mockTokens = [
     marketCap: 31100000,
     totalSupply: 10000000000,
     icon: '',
+    mint: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK mint as placeholder
   },
 ]; 

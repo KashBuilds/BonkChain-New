@@ -10,8 +10,9 @@ export interface Token {
   priceChange24h: number;
   progress?: number;
   launchTime?: string;
-  creatorWallet?: string;
+  creator: string;
   status: 'new' | 'graduating' | 'graduated';
+  marketAddresses?: string[];
 }
 
 export interface TokenListResponse {

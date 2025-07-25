@@ -9,13 +9,13 @@ interface Token {
 
 const tokens: Token[] = [
   { symbol: 'BONK', price: 0.000023, change: 5.67 },
-  { symbol: 'SOL', price: 98.45, change: 3.21 },
-  { symbol: 'HYPE', price: 46.63, change: 5.41 },
-  { symbol: 'WIF', price: 2.34, change: -1.23 },
-  { symbol: 'POPCAT', price: 1.45, change: 8.92 },
-  { symbol: 'USDT', price: 1.00, change: 0.01 },
-  { symbol: 'USDC', price: 1.00, change: 0.00 },
-  { symbol: 'JUP', price: 0.89, change: 2.34 },
+  { symbol: 'ANI', price: 0.039, change: 3.21 },
+  { symbol: 'USELESS', price: 0.321, change: 5.41 },
+  { symbol: 'HOSICO', price: 0.034, change: -1.23 },
+  { symbol: 'MEMECOIN', price: 0.052, change: 8.92 },
+  { symbol: 'KORI', price: 0.025, change: 0.01 },
+  { symbol: 'MOMO', price: 0.033, change: 0.00 },
+  { symbol: 'RT', price: 0.019, change: 2.34 },
 ];
 
 export default function PriceTicker() {
