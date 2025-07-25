@@ -102,23 +102,44 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
 
         {/* App Navigation - Centered */}
         <nav className="hidden sm:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
-            {tabs.map((tab) => (
+        </nav>
+
+          {/* Wallet Connection and App Tabs */}
+          <div className="flex items-center space-x-4">
+            {/* App Tabs */}
+            <nav className="hidden sm:flex items-center space-x-2">
               <button
-                key={tab}
-                onClick={() => onTabChange(tab)}
+                onClick={() => onTabChange('Swap')}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
-                  activeTab === tab
+                  activeTab === 'Swap'
                     ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
                   : 'text-gray-300 hover:text-orange-400 hover:bg-gray-800/50'
                 }`}
               >
-                {tab}
+                Swap
               </button>
-            ))}
-          </nav>
+              <button
+                onClick={() => onTabChange('Liquidity')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  activeTab === 'Liquidity'
+                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
+                  : 'text-gray-300 hover:text-orange-400 hover:bg-gray-800/50'
+                }`}
+              >
+                Liquidity
+              </button>
+              <button
+                onClick={() => onTabChange('Portfolio')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 ${
+                  activeTab === 'Portfolio'
+                    ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white shadow-lg shadow-orange-500/25'
+                  : 'text-gray-300 hover:text-orange-400 hover:bg-gray-800/50'
+                }`}
+              >
+                Portfolio
+              </button>
+            </nav>
 
-          {/* Wallet Connection */}
-          <div className="flex items-center space-x-4">
             {!connected ? (
             <button
                 onClick={handleConnect}

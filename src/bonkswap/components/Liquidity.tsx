@@ -135,7 +135,16 @@ function DepositModal({ pool, isOpen, onClose, onSimulatedSubmit }: Omit<Deposit
   const { setVisible } = useWalletModal();
   const isWalletConnected = wallet.connected;
   const handleWalletConnect = () => setVisible(true);
-  const [priceRange, setPriceRange] = useState({ min: 0.8, max: 1.2 });
+  
+  // Set price range based on pool
+  const getPriceRangeForPool = () => {
+    if (pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC') {
+      return { min: 14.28, max: 33.34 };
+    }
+    return { min: 0.8, max: 1.2 };
+  };
+  
+  const [priceRange, setPriceRange] = useState(getPriceRangeForPool());
   const [currentPrice, setCurrentPrice] = useState(1.0);
   const [estimatedAPY, setEstimatedAPY] = useState(0.00);
   const [isDraggingLeft, setIsDraggingLeft] = useState(false);
@@ -143,18 +152,44 @@ function DepositModal({ pool, isOpen, onClose, onSimulatedSubmit }: Omit<Deposit
   const [isDraggingChart, setIsDraggingChart] = useState(false);
   const chartRef = useRef<HTMLDivElement>(null);
   const [chartScale, setChartScale] = useState(1);
-  const [minPrice, setMinPrice] = useState('0.799964');
-  const [maxPrice, setMaxPrice] = useState('1.19984');
+  
+  // Set min/max price based on pool
+  const getMinMaxPriceForPool = () => {
+    if (pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC') {
+      return { min: '14.28', max: '33.34' };
+    }
+    return { min: '0.799964', max: '1.19984' };
+  };
+  
+  const [minPrice, setMinPrice] = useState(getMinMaxPriceForPool().min);
+  const [maxPrice, setMaxPrice] = useState(getMinMaxPriceForPool().max);
   const [tokenAAmount, setTokenAAmount] = useState('');
   const [tokenBAmount, setTokenBAmount] = useState('');
   
   // Default values for reset
-  const defaultPriceRange = { min: 0.8, max: 1.2 };
+  const defaultPriceRange = getPriceRangeForPool();
   const defaultCurrentPrice = 1.0;
   const defaultChartScale = 1;
   
   // Calculate zoomed price values
   const getZoomedValues = () => {
+    if (pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC') {
+      const baseMin = 14.28;
+      const baseMax = 33.34;
+      const baseCurrent = 23.81; // Average of min and max
+      const range = baseMax - baseMin;
+      const zoomFactor = 1 / chartScale;
+      
+      const newMin = baseCurrent - (range * zoomFactor) / 2;
+      const newMax = baseCurrent + (range * zoomFactor) / 2;
+      
+      return {
+        min: Math.max(10, newMin),
+        max: Math.min(50, newMax),
+        current: baseCurrent
+      };
+    }
+    
     const baseMin = 37.33;
     const baseMax = 63.78;
     const baseCurrent = 47.33;
@@ -267,10 +302,17 @@ function DepositModal({ pool, isOpen, onClose, onSimulatedSubmit }: Omit<Deposit
     setCurrentPrice(prev => prev + adjustment);
   };
 
-  // Use the center price for conversion (e.g., 47.33)
-  const centerPrice = 47.33;
+  // Use the center price for conversion based on pool
+  const getCenterPrice = () => {
+    if (pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC') {
+      return 23.81; // Average of 14.28 and 33.34
+    }
+    return 47.33; // Default for other pools
+  };
 
-  // Handle input for HYPE
+  const centerPrice = getCenterPrice();
+
+  // Handle input for Token A
   const handleTokenAChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9.]/g, '');
     setTokenAAmount(value);
@@ -282,7 +324,7 @@ function DepositModal({ pool, isOpen, onClose, onSimulatedSubmit }: Omit<Deposit
     setTokenBAmount(converted);
   };
 
-  // Handle input for kHYPE
+  // Handle input for Token B
   const handleTokenBChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9.]/g, '');
     setTokenBAmount(value);

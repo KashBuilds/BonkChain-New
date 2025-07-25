@@ -666,17 +666,17 @@ function BonkHeader() {
         <nav className="flex items-center gap-2 ml-8">
           <a href="/" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkChain</a>
           <a href="/bonkscan" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkscan' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkScan</a>
-          <button
+            <button
             onClick={() => navigate('/bonkswap')}
             className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkswap' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'} focus:outline-none`}
             style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer' }}
           >
             BonkSwap
-          </button>
+            </button>
           <a href="/bonkstake" className={`text-sm font-light px-3 py-2 rounded-lg transition-all duration-200${currentPath === '/bonkstake' ? ' text-orange-400' : ' text-white hover:text-bonk-orange'}`}>BonkStake</a>
           <a href="https://x.com/bonkchainfun" target="_blank" rel="noopener noreferrer" className="text-sm font-light px-3 py-2 rounded-lg text-white hover:text-bonk-orange transition-all duration-200">Twitter</a>
         </nav>
-      </div>
+                </div>
     </div>
   );
 }
@@ -759,7 +759,7 @@ function App() {
   function handleBlockKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
     if (e.key === 'Enter' && blockResults.length > 0) {
       if (blockResults[0] && blockResults[0].number !== undefined) {
-        handleSelectBlock(blockResults[0].number);
+      handleSelectBlock(blockResults[0].number);
       }
     }
     if (e.key === 'Escape') {
@@ -1126,8 +1126,8 @@ function App() {
                   <div className="text-4xl text-orange-400 mb-1" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400, letterSpacing: '-0.01em' }}>
                     {m.value}
                     {m.unit && <span className="text-lg text-orange-400 ml-1">{m.unit}</span>}
-                  </div>
                 </div>
+              </div>
               ))}
             </div>
             {/* Main Grid Row */}
@@ -1156,19 +1156,19 @@ function App() {
                     <div className="flex items-center justify-between">
                       <span className="text-gray-400 text-base" style={{ fontFamily: 'Rubik, sans-serif' }}>Transaction count</span>
                       <span className="text-3xl text-orange-400" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400 }}>{customTxCount.toLocaleString()}</span>
-                    </div>
+                  </div>
                     <div className="flex items-center justify-between">
                       <span className="text-gray-400 text-base" style={{ fontFamily: 'Rubik, sans-serif' }}>Transactions per second (TPS)</span>
                       <span className="text-3xl text-orange-400" style={{ fontFamily: 'Rubik, sans-serif', fontWeight: 400 }}>{TPS.toLocaleString()}</span>
-                    </div>
                   </div>
+                </div>
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-white text-base font-medium" style={{ fontFamily: 'Rubik, sans-serif' }}>TPS history</div>
                     <div className="flex gap-2">
                       <button className={`px-3 py-1 rounded bg-[#181c24] font-medium text-xs border border-[#232a3a] ${tpsRange==='30m'?'text-white':'text-gray-400'}`} onClick={()=>setTpsRange('30m')}>30m</button>
                       <button className={`px-3 py-1 rounded bg-[#181c24] font-medium text-xs border border-[#232a3a] ${tpsRange==='2h'?'text-white':'text-gray-400'}`} onClick={()=>setTpsRange('2h')}>2h</button>
                       <button className={`px-3 py-1 rounded bg-[#181c24] font-medium text-xs border border-[#232a3a] ${tpsRange==='6h'?'text-white':'text-gray-400'}`} onClick={()=>setTpsRange('6h')}>6h</button>
-                    </div>
+              </div>
                   </div>
                   <div className="h-[400px] w-full">
                     <Bar
