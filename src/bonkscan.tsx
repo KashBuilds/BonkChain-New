@@ -693,7 +693,7 @@ function App() {
   // --- End new data ---
 
   // Updated values from user
-  const coinSupply = 48821087841;
+  const coinSupply = 77419592329436;
   const difficulty = 26547586.6949971;
   const priceUsd = 0.00000218;
   const marketCapUsd = 106429.97149338;
@@ -701,7 +701,7 @@ function App() {
   // If you want to show these as stat cards at the top:
   const metrics = [
     {
-      title: 'Coin Supply (BONC)',
+      title: 'Coin Supply (BONK)',
       value: coinSupply.toLocaleString(),
       unit: '',
     },

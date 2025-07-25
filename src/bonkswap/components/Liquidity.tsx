@@ -29,90 +29,90 @@ interface DepositModalProps {
 const liquidityPools: LiquidityPool[] = [
   {
     id: '1',
-    tokenA: 'HYPE',
-    tokenB: 'kHYPE',
+    tokenA: 'ANI',
+    tokenB: 'USDC',
     version: 'V3',
-    fee: '0.01%',
-    liquidity: '$7,464,722',
+    fee: '0.3%',
+    liquidity: '$406K',
     volume24h: '$1,634,530',
-    fees24h: '$1,566',
+    fees24h: '$18,796',
     apr: '0.8%'
   },
   {
     id: '2',
-    tokenA: 'HYPE',
-    tokenB: 'PURR',
+    tokenA: 'HOSICO',
+    tokenB: 'USDC',
     version: 'V3',
     fee: '0.3%',
-    liquidity: '$5,959,394',
+    liquidity: '$1.86M',
     volume24h: '$958,917',
-    fees24h: '$17,434',
-    apr: '17.62%'
+    fees24h: '$157,675',
+    apr: '16.7%'
   },
   {
     id: '3',
-    tokenA: 'HYPE',
-    tokenB: 'USD₮0',
+    tokenA: 'KORI',
+    tokenB: 'BONK',
     version: 'V3',
     fee: '0.3%',
-    liquidity: '$5,050,531',
+    liquidity: '$1.35M',
     volume24h: '$5,175,104',
-    fees24h: '$171,781',
-    apr: '112.2%'
+    fees24h: '$210,900',
+    apr: '12.2%'
   },
   {
     id: '4',
-    tokenA: 'HYPE',
-    tokenB: 'LHYPE',
+    tokenA: 'USELESS',
+    tokenB: 'SOL',
     version: 'V3',
     fee: '0.01%',
-    liquidity: '$3,738,503',
+    liquidity: '$1.38M',
     volume24h: '$3,538,086',
-    fees24h: '$2,255',
+    fees24h: '$57,202',
     apr: '3.45%'
   },
   {
     id: '5',
-    tokenA: 'feUSD',
-    tokenB: 'USD₮0',
+    tokenA: 'BLUECHIP',
+    tokenB: 'USDC',
     version: 'V3',
     fee: '0.01%',
-    liquidity: '$3,501,382',
+    liquidity: '$496K',
     volume24h: '$915,316',
-    fees24h: '$1,001',
+    fees24h: '$179,542',
     apr: '0.95%'
   },
   {
     id: '6',
-    tokenA: 'HYPE',
-    tokenB: 'UBTC',
+    tokenA: 'CRYBB',
+    tokenB: 'BONK',
     version: 'V3',
     fee: '0.3%',
-    liquidity: '$2,292,788',
+    liquidity: '$445K',
     volume24h: '$1,460,449',
-    fees24h: '$32,067',
-    apr: '69.75%'
+    fees24h: '$140,045',
+    apr: '9.75%'
   },
   {
     id: '7',
-    tokenA: 'HYPE',
-    tokenB: 'UETH',
+    tokenA: 'IKUN',
+    tokenB: 'USDC',
     version: 'V3',
     fee: '0.3%',
-    liquidity: '$2,005,959',
+    liquidity: '$879K',
     volume24h: '$1,004,160',
-    fees24h: '$13,753',
-    apr: '54.81%'
+    fees24h: '$234,950',
+    apr: '8.81%'
   },
   {
     id: '8',
-    tokenA: 'USDHL',
-    tokenB: 'USD₮0',
+    tokenA: 'MOMO',
+    tokenB: 'BONK',
     version: 'V3',
     fee: '0.01%',
-    liquidity: '$1,862,522',
+    liquidity: '$920K',
     volume24h: '$1,507,146',
-    fees24h: '$2,030',
+    fees24h: '$159,877',
     apr: '2.95%'
   }
 ];
@@ -754,7 +754,7 @@ export default function Liquidity() {
       <div className="flex gap-6 mb-6 justify-center">
         <StatCard label="TVL" value="$37,897,121" color="#7c3aed" data={tvlData} labels={statLabels} />
         <StatCard label="24h Volume" value="$26,153,291" color="#22c55e" data={volumeData} labels={statLabels} />
-        <StatCard label="24h Fees" value="$52,727" color="#2563eb" data={feesData} labels={statLabels} />
+        <StatCard label="Global Fees" value="$52,727" color="#2563eb" data={feesData} labels={statLabels} />
       </div>
 
       {/* Pools Table */}
@@ -766,7 +766,7 @@ export default function Liquidity() {
                 <th className="text-left py-4 px-6 font-semibold text-white">Pool</th>
                 <th className="text-right py-4 px-6 font-semibold text-white">Liquidity</th>
                 <th className="text-right py-4 px-6 font-semibold text-white">24h Volume</th>
-                <th className="text-right py-4 px-6 font-semibold text-white">24h Fees</th>
+                <th className="text-right py-4 px-6 font-semibold text-white">Global Fees</th>
                 <th className="text-right py-4 px-6 font-semibold text-white">APR</th>
                 <th className="text-center py-4 px-6 font-semibold text-white">Action</th>
               </tr>
@@ -798,8 +798,8 @@ export default function Liquidity() {
                   <td className="py-4 px-6 text-right font-semibold text-white">{pool.fees24h}</td>
                   <td className="py-4 px-6 text-right">
                     <span className={`font-semibold ${
-                      parseFloat(pool.apr) > 50 ? 'text-green-400' : 
-                      parseFloat(pool.apr) > 10 ? 'text-orange-400' : 'text-white'
+                      parseFloat(pool.apr) >= 15 ? 'text-green-400' : 
+                      parseFloat(pool.apr) >= 5 ? 'text-orange-400' : 'text-white'
                     }`}>
                       {pool.apr}
                     </span>
