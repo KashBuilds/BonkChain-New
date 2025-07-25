@@ -529,10 +529,11 @@ function DepositModal({ pool, isOpen, onClose, onSimulatedSubmit }: Omit<Deposit
                 <div className="bg-gray-700 border border-gray-600 rounded-lg p-4">
                   <input
                     type="text"
-                    value={minPrice}
+                    value={pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC' ? '14.28' : minPrice}
                     onChange={(e) => {
-                      setMinPrice(e.target.value);
-                      const newMin = parseFloat(e.target.value) || 0.1;
+                      const newValue = pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC' ? '14.28' : e.target.value;
+                      setMinPrice(newValue);
+                      const newMin = parseFloat(newValue) || 0.1;
                       setPriceRange(prev => ({ ...prev, min: newMin }));
                     }}
                     className="w-full text-lg font-semibold text-white bg-transparent border-none outline-none"
@@ -545,10 +546,11 @@ function DepositModal({ pool, isOpen, onClose, onSimulatedSubmit }: Omit<Deposit
                 <div className="bg-gray-700 border border-gray-600 rounded-lg p-4">
                   <input
                     type="text"
-                    value={maxPrice}
+                    value={pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC' ? '33.34' : maxPrice}
                     onChange={(e) => {
-                      setMaxPrice(e.target.value);
-                      const newMax = parseFloat(e.target.value) || 2.0;
+                      const newValue = pool?.tokenA === 'ANI' && pool?.tokenB === 'USDC' ? '33.34' : e.target.value;
+                      setMaxPrice(newValue);
+                      const newMax = parseFloat(newValue) || 2.0;
                       setPriceRange(prev => ({ ...prev, max: newMax }));
                     }}
                     className="w-full text-lg font-semibold text-white bg-transparent border-none outline-none"
