@@ -31,6 +31,7 @@ import {
 } from 'chart.js';
 import { Routes, Route, useNavigate, useParams, Link } from 'react-router-dom';
 import type { ChartOptions } from 'chart.js';
+import WalletConnect from './components/WalletConnect';
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, Tooltip, Filler, Legend);
 
 interface MetricCardProps {
@@ -627,7 +628,7 @@ function BonkScanHeader() {
   const navigate = useNavigate();
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
   return (
-    <div className="flex items-center w-full px-8 py-4 gap-8">
+    <div className="flex items-center justify-between w-full px-8 py-4 gap-8">
       <div className="flex items-center gap-8 min-w-0">
         <div className="flex items-center space-x-3">
           <img src="/bonk-logo.png" alt="Bonk Logo" className="w-8 h-8 rounded-full object-cover" />
@@ -649,6 +650,7 @@ function BonkScanHeader() {
           <a href="https://x.com/bonkchainfun" target="_blank" rel="noopener noreferrer" className="text-sm font-light px-3 py-2 rounded-lg text-white hover:text-bonk-orange transition-all duration-200">Twitter</a>
         </nav>
       </div>
+      <WalletConnect />
     </div>
   );
 }

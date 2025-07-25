@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Globe, FileText, Twitter, Zap, Shield, TrendingUp, X } from 'lucide-react';
+import WalletConnect from '../components/WalletConnect';
 
 export default function BonkStake() {
   const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/';
@@ -52,6 +53,7 @@ export default function BonkStake() {
             </a>
           </nav>
         </div>
+        <WalletConnect />
       </div>
 
       {/* Main Content */}

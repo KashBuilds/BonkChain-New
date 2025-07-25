@@ -39,7 +39,7 @@ function App() {
               onTabChange={setActiveTab}
             />
             <main className="container mx-auto px-4 py-8">
-              <div className="flex justify-center items-center min-h-[calc(100vh-200px)]">
+              <div className="flex justify-center items-center min-h-[calc(100vh-200px)] w-full">
                 {renderContent()}
               </div>
             </main>

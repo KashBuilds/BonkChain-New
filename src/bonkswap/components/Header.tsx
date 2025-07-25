@@ -66,7 +66,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
           </div>
 
           {/* Main Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-2 ml-8">
+          <nav className="hidden md:flex items-center space-x-2 ml-8">
             <button 
               onClick={() => handleNavigation('BonkChain')}
               className={`px-3 py-2 rounded-lg text-sm font-light transition-all duration-200 ${currentPath === '/' ? 'text-orange-400' : 'text-gray-300 hover:text-orange-400'}`}
@@ -101,7 +101,7 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
         </div>
 
         {/* App Navigation - Centered */}
-        <nav className="hidden md:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
+        <nav className="hidden sm:flex items-center space-x-8 absolute left-1/2 transform -translate-x-1/2">
             {tabs.map((tab) => (
               <button
                 key={tab}

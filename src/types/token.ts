@@ -2,17 +2,20 @@ export interface Token {
   id: string;
   mint: string;
   name: string;
-  ticker: string;
-  icon: string;
+  symbol: string;
+  image: string;
   marketCap: number;
   volume24h: number;
   price: number;
   priceChange24h: number;
   progress?: number;
-  launchTime?: string;
+  createdAt: string;
   creator: string;
   status: 'new' | 'graduating' | 'graduated';
   marketAddresses?: string[];
+  ticker?: string;
+  icon?: string;
+  launchTime?: string;
 }
 
 export interface TokenListResponse {
