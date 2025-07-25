@@ -186,7 +186,7 @@ const TokenDetailPage: React.FC = () => {
     return `${minutesAgo} min ago`;
   }
   function randomTx() {
-    const types = ['Buy', 'Sell', 'Refund'];
+    const types = ['Buy', 'Sell'];
     const users = ['9xd9J...5ASM', '8hTqL...2KLM', '3v4sX...tHh2', '5mN9...7pQ3'];
     const txs = ['g2cp4...HnRv', '9GU2yd...zx2B', 'a8f3k...1jK9', 'b7c2d...9LmQ'];
     const type = types[Math.floor(Math.random() * types.length)];
@@ -196,7 +196,13 @@ const TokenDetailPage: React.FC = () => {
     const time = randomTxTime();
     return { time, type, amount, user, tx, txUrl: '#' };
   }
-  const randomTransactions = [randomTx(), randomTx()];
+  const randomTransactions = [
+    { time: '2 hours ago', type: 'Buy', amount: 0.025758399, user: '7xd9J...5ASM', tx: '9GU2yd...zx2B', txUrl: '#' },
+    { time: '1 day ago', type: 'Sell', amount: 0.015758399, user: '9xd9J...5ASM', tx: '9GU2yd...zx2B', txUrl: '#' },
+    { time: '3 days ago', type: 'Buy', amount: 0.035758399, user: '3xd9J...5ASM', tx: '8GU2yd...zx2B', txUrl: '#' },
+    { time: '5 days ago', type: 'Sell', amount: 0.015758399, user: '9xd9J...5ASM', tx: '9GU2yd...zx2B', txUrl: '#' },
+    { time: '1 week ago', type: 'Buy', amount: 0.045758399, user: '1xd9J...5ASM', tx: '7GU2yd...zx2B', txUrl: '#' },
+  ];
 
   // Format compact numbers (e.g., 27959 -> 28K)
   function formatCompactNumber(num: number): string {

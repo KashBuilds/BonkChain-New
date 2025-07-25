@@ -42,7 +42,7 @@ interface MetricCardProps {
 }
 
 interface TransactionProps {
-  type: 'buy' | 'sell' | 'transfer';
+  type: 'buy' | 'sell';
   time: string;
   amount: string;
   from: string;
@@ -801,13 +801,13 @@ function App() {
             const to = randomWallet();
             return {
               type,
-              time: 'just now',
+              time: getRelativeTime(Date.now() - Math.random() * 86400000),
               amount: amountStr,
               from,
               to,
               signature: randomSolanaHash(),
               mint: randomToken.mint,
-              symbol: randomToken.symbol,
+              symbol: randomToken.symbol
             };
           })
           .filter((tx): tx is LocalTransaction => !!tx);
@@ -1348,8 +1348,8 @@ const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, 
         return 'bg-green-500/10 border-green-500/20 text-green-400';
       case 'sell':
         return 'bg-red-500/10 border-red-500/20 text-red-400';
-      case 'transfer':
-        return 'bg-blue-500/10 border-blue-500/20 text-blue-400';
+      default:
+        return 'bg-gray-500/10 border-gray-500/20 text-gray-400';
     }
   };
 
@@ -1359,7 +1359,7 @@ const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, 
         return <ArrowUpRight size={16} />;
       case 'sell':
         return <ArrowDownRight size={16} />;
-      case 'transfer':
+      default:
         return <ArrowRightLeft size={16} />;
     }
   };
@@ -1370,8 +1370,8 @@ const TransactionRow: React.FC<LocalTransaction> = ({ type, time, amount, from, 
         return 'hover:bg-green-500/5 border-green-500/10';
       case 'sell':
         return 'hover:bg-red-500/5 border-red-500/10';
-      case 'transfer':
-        return 'hover:bg-blue-500/5 border-blue-500/10';
+      default:
+        return 'hover:bg-gray-500/5 border-gray-500/10';
     }
   };
 
