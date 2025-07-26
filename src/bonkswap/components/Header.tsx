@@ -93,9 +93,15 @@ export default function Header({ activeTab, onTabChange }: HeaderProps) {
             </button>
             <button 
               onClick={() => handleNavigation('Twitter')}
-              className="px-3 py-2 rounded-lg text-sm font-light text-gray-300 hover:text-orange-400 transition-all duration-200"
+              className="px-3 py-2 rounded-lg text-sm font-light text-white hover:text-orange-400 transition-all duration-200"
             >
               Twitter
+            </button>
+            <button 
+              onClick={() => window.open('https://github.com/icarus-cooks/Bonk-terminal', '_blank')}
+              className="px-3 py-2 rounded-lg text-sm font-light text-white hover:text-orange-400 transition-all duration-200"
+            >
+              GitHub
             </button>
           </nav>
         </div>
